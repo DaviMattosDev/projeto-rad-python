@@ -2,11 +2,9 @@ import sqlite3
 from tkinter import *
 from tkinter import messagebox, ttk
 
-# Conexão com o banco de dados SQLite
 conn = sqlite3.connect('teste.db')
 cursor = conn.cursor()
 
-# Criar tabela se ela não existir
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS pessoas (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -16,7 +14,6 @@ CREATE TABLE IF NOT EXISTS pessoas (
 ''')
 conn.commit()
 
-# Função para inserir dados no banco
 def inserir_dados():
     nome = entry_nome.get()
     idade = entry_idade.get()
@@ -37,7 +34,6 @@ def inserir_dados():
     limpar_campos()
     listar_dados()
 
-# Função para listar dados do banco
 def listar_dados():
     listbox_dados.delete(*listbox_dados.get_children())
     cursor.execute('SELECT * FROM pessoas')
@@ -45,7 +41,6 @@ def listar_dados():
     for registro in registros:
         listbox_dados.insert("", END, values=registro)
 
-# Função para excluir um registro
 def excluir_registro():
     item_selecionado = listbox_dados.selection()
     if not item_selecionado:
@@ -58,23 +53,19 @@ def excluir_registro():
     messagebox.showinfo("Sucesso", "Registro excluído com sucesso!")
     listar_dados()
 
-# Função para limpar os campos de entrada
 def limpar_campos():
     entry_nome.delete(0, END)
     entry_idade.delete(0, END)
 
-# Interface Gráfica
 root = Tk()
 root.title("Teste Tkinter + SQLite")
 root.geometry("600x400")
 root.configure(bg="#f0f0f0")
 
-# Cabeçalho institucional
 header = Frame(root, bg="#003366", height=50)
 header.pack(fill="x")
 Label(header, text="Teste Tkinter + SQLite", font=("Arial", 18, "bold"), fg="white", bg="#003366").pack(pady=10)
 
-# Formulário de Cadastro
 form_frame = Frame(root, bg="#f0f0f0")
 form_frame.pack(pady=20)
 
@@ -88,7 +79,6 @@ entry_idade.grid(row=1, column=1, padx=10, pady=5)
 
 Button(form_frame, text="Inserir Dados", command=inserir_dados, bg="#003366", fg="white", font=("Arial", 10)).grid(row=2, column=0, columnspan=2, pady=10)
 
-# Lista de Registros
 list_frame = Frame(root, bg="#f0f0f0")
 list_frame.pack(fill="both", expand=True, padx=20, pady=10)
 
@@ -102,8 +92,6 @@ listbox_dados.pack(fill="both", expand=True)
 Button(list_frame, text="Listar Dados", command=listar_dados, bg="#003366", fg="white", font=("Arial", 10)).pack(side=LEFT, padx=10, pady=5)
 Button(list_frame, text="Excluir Registro", command=excluir_registro, bg="#003366", fg="white", font=("Arial", 10)).pack(side=RIGHT, padx=10, pady=5)
 
-# Iniciar a interface gráfica
 root.mainloop()
 
-# Fechar conexão com o banco de dados
 conn.close()

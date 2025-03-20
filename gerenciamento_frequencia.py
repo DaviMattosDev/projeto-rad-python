@@ -24,15 +24,16 @@ def iniciar_sistema():
     root.geometry("800x600")
     root.configure(bg="#f0f0f0")
 
+    # Cabeçalho institucional
+    header = Frame(root, bg="#003366", height=60)
+    header.pack(fill="x")
+    Label(header, text="Gerenciamento de Frequência", font=("Arial", 18, "bold"), fg="white", bg="#003366").pack(pady=10)
+
     # Conexão com o banco de dados
     conn = sqlite3.connect('empresa.db')
     cursor = conn.cursor()
     print("Conexão com o banco de dados estabelecida.")
 
-    # Cabeçalho institucional
-    header = Frame(root, bg="#003366", height=60)
-    header.pack(fill="x")
-    Label(header, text="Gerenciamento de Frequência", font=("Arial", 18, "bold"), fg="white", bg="#003366").pack(pady=10)
 
     def listar_frequencia():
         listbox_frequencia.delete(*listbox_frequencia.get_children())
@@ -61,7 +62,7 @@ def iniciar_sistema():
             for linha in relatorio:
                 nome = linha[0]
                 dias_trabalhados = linha[1]
-                horas_totais = linha[2] or 0  # Evitar None
+                horas_totais = linha[2] or 0  
                 semanas_trabalhadas = dias_trabalhados / 5 if dias_trabalhados > 0 else 0
                 horas_semanais = horas_totais / semanas_trabalhadas if semanas_trabalhadas > 0 else 0
 
@@ -75,7 +76,7 @@ def iniciar_sistema():
                 else:
                     horas_faltantes = 40 - horas_semanais if horas_semanais < 40 else 0
                     dias_faltantes = 20 - dias_trabalhados if dias_trabalhados < 20 else 0
-                    arquivo.write("Status: Pagamento Pendente.\n")
+                    arquivo.write("Status: Pagamento em trânsito.\n")
                     arquivo.write(f"Mensagem: Faltam {horas_faltantes:.2f} horas e {dias_faltantes} dias para completar a carga horária.\n\n")
 
             arquivo.write("Relatório finalizado.")
@@ -134,6 +135,10 @@ login_window = Tk()
 login_window.title("Login - Governo Federal")
 login_window.geometry("400x300")
 login_window.configure(bg="#f0f0f0")
+
+header = Frame(login_window, bg="#003366", height=60)
+header.pack(fill="x")
+Label(header, text="Sistema de Frequência", font=("Arial", 18, "bold"), fg="white", bg="#003366").pack(pady=10)
 
 Label(login_window, text="Usuário:", font=("Arial", 12), bg="#f0f0f0").pack(pady=10)
 entry_usuario = Entry(login_window, font=("Arial", 12))
