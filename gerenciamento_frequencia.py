@@ -1,123 +1,148 @@
 import sqlite3
 from tkinter import *
-from tkinter import messagebox
+from tkinter import messagebox, ttk
+from datetime import datetime
 from login_utils import verificar_login
-from datetime import datetime, timedelta
 
-# Função de login
+# Função de login usando login_utils
 def abrir_sistema():
     usuario = entry_usuario.get()
     senha = entry_senha.get()
 
     if verificar_login(usuario, senha):
+        print("Login bem-sucedido.")
         login_window.destroy()
         iniciar_sistema()
     else:
+        print("Login falhou.")
         messagebox.showerror("Erro", "Usuário ou senha inválidos!")
 
-# Iniciar sistema após login
 def iniciar_sistema():
     global root
     root = Tk()
-    root.title("Gerenciamento de Frequência")
-    root.geometry("600x500")
+    root.title("Gerenciamento de Frequência - Governo Federal")
+    root.geometry("800x600")
+    root.configure(bg="#f0f0f0")
 
-    # Funções do sistema
-    def registrar_ponto_entrada():
-        funcionario_id = entry_funcionario_id.get()
+    # Conexão com o banco de dados
+    conn = sqlite3.connect('empresa.db')
+    cursor = conn.cursor()
+    print("Conexão com o banco de dados estabelecida.")
 
-        if not funcionario_id:
-            messagebox.showwarning("Erro", "Informe o ID do funcionário!")
-            return
+    # Cabeçalho institucional
+    header = Frame(root, bg="#003366", height=60)
+    header.pack(fill="x")
+    Label(header, text="Gerenciamento de Frequência", font=("Arial", 18, "bold"), fg="white", bg="#003366").pack(pady=10)
 
-        # Verificar situação do funcionário
-        cursor.execute('SELECT situacao, data_inicio FROM funcionarios WHERE id = ?', (funcionario_id,))
-        resultado = cursor.fetchone()
-        if not resultado:
-            messagebox.showerror("Erro", "Funcionário não encontrado!")
-            return
-
-        situacao, data_inicio = resultado
-        data_inicio = datetime.strptime(data_inicio, '%Y-%m-%d')
-        hoje = datetime.now()
-
-        # Se passaram 3 meses, atualizar para híbrido
-        if (hoje - data_inicio).days >= 90 and situacao != "hibrido":
-            cursor.execute('UPDATE funcionarios SET situacao = ? WHERE id = ?', ("hibrido", funcionario_id))
-            conn.commit()
-            situacao = "hibrido"
-
-        # Determinar tipo de trabalho
-        dia_semana = hoje.weekday()  # 0 = segunda, 4 = sexta
-        tipo_trabalho = "teletrabalho" if situacao == "hibrido" and dia_semana in [0, 4] else "presencial"
-
-        # Registrar entrada
-        data_hora = hoje.strftime('%Y-%m-%d %H:%M:%S')
-        cursor.execute('''
-        INSERT INTO frequencia (funcionario_id, data_hora_entrada, tipo_trabalho)
-        VALUES (?, ?, ?)
-        ''', (funcionario_id, data_hora, tipo_trabalho))
-        conn.commit()
-        messagebox.showinfo("Sucesso", f"Entrada registrada com sucesso! Tipo: {tipo_trabalho}")
-
-    def registrar_ponto_saida():
-        funcionario_id = entry_funcionario_id.get()
-
-        if not funcionario_id:
-            messagebox.showwarning("Erro", "Informe o ID do funcionário!")
-            return
-
-        data_hora = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        cursor.execute('UPDATE frequencia SET data_hora_saida = ? WHERE funcionario_id = ? AND data_hora_saida IS NULL', (data_hora, funcionario_id))
-        conn.commit()
-        messagebox.showinfo("Sucesso", "Saída registrada com sucesso!")
-
-    def consultar_frequencia():
-        funcionario_id = entry_funcionario_id.get()
-
-        if not funcionario_id:
-            messagebox.showwarning("Erro", "Informe o ID do funcionário!")
-            return
-
-        cursor.execute('SELECT * FROM frequencia WHERE funcionario_id = ?', (funcionario_id,))
+    def listar_frequencia():
+        listbox_frequencia.delete(*listbox_frequencia.get_children())
+        cursor.execute('SELECT * FROM frequencia')
         frequencias = cursor.fetchall()
-        listbox_frequencia.delete(0, END)
         for frequencia in frequencias:
-            listbox_frequencia.insert(END, f"ID: {frequencia[0]}, Entrada: {frequencia[2]}, Saída: {frequencia[3]}, Tipo: {frequencia[4]}")
+            status_color = "green" if frequencia[5] == "confirmado" else "yellow" if frequencia[5] == "pendente" else "red"
+            listbox_frequencia.insert("", END, values=frequencia, tags=(status_color,))
+        listbox_frequencia.tag_configure("green", background="lightgreen")
+        listbox_frequencia.tag_configure("yellow", background="yellow")
+        listbox_frequencia.tag_configure("red", background="pink")
 
-    # Interface Gráfica
-    Label(root, text="ID do Funcionário:").grid(row=0, column=0, padx=10, pady=5)
-    entry_funcionario_id = Entry(root)
-    entry_funcionario_id.grid(row=0, column=1, padx=10, pady=5)
+    def gerar_relatorio_salario():
+        # Consulta para listar todos os funcionários, mesmo sem registros
+        cursor.execute('''
+        SELECT f.nome, COUNT(fr.id) AS dias_trabalhados, 
+               SUM(CASE WHEN fr.status = 'confirmado' THEN 8 ELSE 0 END) AS horas_totais
+        FROM funcionarios f
+        LEFT JOIN frequencia fr ON f.id = fr.funcionario_id
+        GROUP BY f.id
+        ''')
+        relatorio = cursor.fetchall()
 
-    Button(root, text="Registrar Entrada", command=registrar_ponto_entrada).grid(row=1, column=0, columnspan=2, pady=5)
-    Button(root, text="Registrar Saída", command=registrar_ponto_saida).grid(row=2, column=0, columnspan=2, pady=5)
+        # Gerar arquivo TXT
+        with open("relatorio_salario.txt", "w", encoding="utf-8") as arquivo:
+            for linha in relatorio:
+                nome = linha[0]
+                dias_trabalhados = linha[1]
+                horas_totais = linha[2] or 0  # Evitar None
+                semanas_trabalhadas = dias_trabalhados / 5 if dias_trabalhados > 0 else 0
+                horas_semanais = horas_totais / semanas_trabalhadas if semanas_trabalhadas > 0 else 0
 
-    Label(root, text="Histórico de Frequência:").grid(row=3, column=0, columnspan=2)
-    listbox_frequencia = Listbox(root, width=80, height=10)
-    listbox_frequencia.grid(row=4, column=0, columnspan=2, padx=10, pady=5)
-    Button(root, text="Consultar Frequência", command=consultar_frequencia).grid(row=5, column=0, columnspan=2, pady=5)
+                arquivo.write(f"Funcionário: {nome}\n")
+                arquivo.write(f"Dias Trabalhados: {dias_trabalhados}\n")
+                arquivo.write(f"Horas Totais Trabalhadas: {horas_totais:.2f} horas\n")
+
+                if horas_semanais >= 40 and dias_trabalhados >= 20:  # Verifica 40h/semana e mínimo de 20 dias
+                    arquivo.write("Status: Pagamento Aprovado.\n")
+                    arquivo.write("Mensagem: O funcionário pode receber o salário.\n\n")
+                else:
+                    horas_faltantes = 40 - horas_semanais if horas_semanais < 40 else 0
+                    dias_faltantes = 20 - dias_trabalhados if dias_trabalhados < 20 else 0
+                    arquivo.write("Status: Pagamento Pendente.\n")
+                    arquivo.write(f"Mensagem: Faltam {horas_faltantes:.2f} horas e {dias_faltantes} dias para completar a carga horária.\n\n")
+
+            arquivo.write("Relatório finalizado.")
+
+        messagebox.showinfo("Sucesso", "Relatório gerado com sucesso! Verifique o arquivo 'relatorio_salario.txt'.")
+
+    def alterar_status():
+        funcionario_id = entry_funcionario_id.get()
+        novo_status = status_var.get()
+
+        if not funcionario_id or not novo_status:
+            messagebox.showwarning("Erro", "Informe o ID do funcionário e o novo status!")
+            return
+
+        cursor.execute('UPDATE frequencia SET status = ? WHERE funcionario_id = ?', (novo_status, funcionario_id))
+        conn.commit()
+        messagebox.showinfo("Sucesso", f"Status alterado para '{novo_status}' com sucesso!")
+        listar_frequencia()  # Atualiza a lista após alterar o status
+
+    main_frame = Frame(root, bg="#f0f0f0")
+    main_frame.pack(padx=20, pady=20, fill="both", expand=True)
+
+    # Alteração de Status (Colocado no topo)
+    Label(main_frame, text="ID do Funcionário:", font=("Arial", 10), bg="#f0f0f0").pack(pady=5)
+    entry_funcionario_id = Entry(main_frame, font=("Arial", 10))
+    entry_funcionario_id.pack(pady=5)
+
+    Label(main_frame, text="Novo Status:", font=("Arial", 10), bg="#f0f0f0").pack(pady=5)
+    status_var = StringVar()
+    status_menu = ttk.Combobox(main_frame, textvariable=status_var, values=["pendente", "confirmado", "nao_confirmado"], font=("Arial", 10))
+    status_menu.pack(pady=5)
+
+    Button(main_frame, text="Alterar Status", command=alterar_status, bg="#003366", fg="white", font=("Arial", 10)).pack(pady=10)
+
+    Button(main_frame, text="Gerar Relatório de Salário", command=gerar_relatorio_salario, bg="#003366", fg="white", font=("Arial", 10)).pack(pady=10)
+
+    list_frame = LabelFrame(main_frame, text="Lista de Frequência", font=("Arial", 12, "bold"), bg="#f0f0f0", fg="#003366")
+    list_frame.pack(fill="both", expand=True, pady=10)
+
+    colunas = ("ID", "Funcionário ID", "Entrada", "Saída", "Tipo", "Status")
+    listbox_frequencia = ttk.Treeview(list_frame, columns=colunas, show="headings", height=10)
+    for col in colunas:
+        listbox_frequencia.heading(col, text=col)
+        listbox_frequencia.column(col, width=100, anchor="center")
+    listbox_frequencia.pack(fill="both", expand=True, padx=10, pady=5)
+
+    Button(list_frame, text="Listar Frequência", command=listar_frequencia, bg="#003366", fg="white", font=("Arial", 10)).pack(pady=5)
 
     root.mainloop()
 
+    # Fechar conexão com o banco de dados
+    conn.close()
+
 # Janela de login
-conn = sqlite3.connect('empresa.db')
-cursor = conn.cursor()
-
 login_window = Tk()
-login_window.title("Login")
-login_window.geometry("300x200")
+login_window.title("Login - Governo Federal")
+login_window.geometry("400x300")
+login_window.configure(bg="#f0f0f0")
 
-Label(login_window, text="Usuário:").pack(pady=5)
-entry_usuario = Entry(login_window)
+Label(login_window, text="Usuário:", font=("Arial", 12), bg="#f0f0f0").pack(pady=10)
+entry_usuario = Entry(login_window, font=("Arial", 12))
 entry_usuario.pack(pady=5)
 
-Label(login_window, text="Senha:").pack(pady=5)
-entry_senha = Entry(login_window, show="*")
+Label(login_window, text="Senha:", font=("Arial", 12), bg="#f0f0f0").pack(pady=10)
+entry_senha = Entry(login_window, show="*", font=("Arial", 12))
 entry_senha.pack(pady=5)
 
-Button(login_window, text="Entrar", command=abrir_sistema).pack(pady=10)
+Button(login_window, text="Entrar", command=abrir_sistema, bg="#003366", fg="white", font=("Arial", 12)).pack(pady=20)
 
 login_window.mainloop()
-
-conn.close()

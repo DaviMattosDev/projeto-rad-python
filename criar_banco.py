@@ -1,6 +1,7 @@
 import sqlite3
+from datetime import datetime, timedelta
 
-# Conexão com o banco de dados (cria o arquivo se ele não existir)
+# Conexão com o banco de dados
 conn = sqlite3.connect('empresa.db')
 cursor = conn.cursor()
 
@@ -27,14 +28,13 @@ CREATE TABLE IF NOT EXISTS frequencia (
     data_hora_entrada TEXT NOT NULL,
     data_hora_saida TEXT,
     tipo_trabalho TEXT CHECK(tipo_trabalho IN ('presencial', 'teletrabalho')) DEFAULT 'presencial',
+    status TEXT CHECK(status IN ('pendente', 'confirmado', 'nao_confirmado')) DEFAULT 'pendente',
     FOREIGN KEY (funcionario_id) REFERENCES funcionarios(id)
 )
 ''')
 print("Tabela 'frequencia' criada com sucesso.")
 
-# Inserir alguns dados iniciais na tabela de funcionários (opcional)
-from datetime import datetime, timedelta
-
+# Inserir alguns dados iniciais na tabela de funcionários
 hoje = datetime.now().strftime('%Y-%m-%d')
 tres_meses_atras = (datetime.now() - timedelta(days=90)).strftime('%Y-%m-%d')
 

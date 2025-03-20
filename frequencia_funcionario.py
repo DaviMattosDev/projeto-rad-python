@@ -1,6 +1,6 @@
 import sqlite3
 from tkinter import *
-from tkinter import messagebox
+from tkinter import messagebox, ttk
 from datetime import datetime, timedelta
 
 # Conexão com o banco de dados
@@ -51,6 +51,7 @@ def registrar_entrada():
     ''', (funcionario_id, data_hora, tipo_trabalho))
     conn.commit()
     messagebox.showinfo("Sucesso", f"Entrada registrada com sucesso! Tipo: {tipo_trabalho}")
+    listar_frequencia()  # Atualiza a lista após registrar entrada
 
 # Função para registrar saída
 def registrar_saida():
@@ -72,18 +73,60 @@ def registrar_saida():
     cursor.execute('UPDATE frequencia SET data_hora_saida = ? WHERE funcionario_id = ? AND data_hora_saida IS NULL', (data_hora, funcionario_id))
     conn.commit()
     messagebox.showinfo("Sucesso", "Saída registrada com sucesso!")
+    listar_frequencia()  # Atualiza a lista após registrar saída
+
+# Função para listar frequência
+def listar_frequencia():
+    listbox_frequencia.delete(*listbox_frequencia.get_children())
+    cursor.execute('SELECT * FROM frequencia WHERE funcionario_id = ?', (entry_funcionario_id.get(),))
+    frequencias = cursor.fetchall()
+    for frequencia in frequencias:
+        entrada = frequencia[2]
+        saida = frequencia[3] if frequencia[3] else "Pendente"
+        tempo_trabalhado = calcular_tempo_trabalhado(entrada, saida) if saida != "Pendente" else "Pendente"
+        listbox_frequencia.insert("", END, values=(frequencia[0], entrada, saida, frequencia[4], tempo_trabalhado))
+
+# Função para calcular tempo trabalhado
+def calcular_tempo_trabalhado(entrada, saida):
+    entrada_dt = datetime.strptime(entrada, '%Y-%m-%d %H:%M:%S')
+    saida_dt = datetime.strptime(saida, '%Y-%m-%d %H:%M:%S')
+    diferenca = saida_dt - entrada_dt
+    horas, resto = divmod(diferenca.seconds, 3600)
+    minutos = resto // 60
+    return f"{horas}h {minutos}m"
 
 # Interface Gráfica
 root = Tk()
 root.title("Registro de Frequência - Funcionário")
-root.geometry("400x300")
+root.geometry("800x600")
+root.configure(bg="#f0f0f0")
 
-Label(root, text="ID do Funcionário:").pack(pady=10)
-entry_funcionario_id = Entry(root)
+# Cabeçalho institucional
+header = Frame(root, bg="#003366", height=60)
+header.pack(fill="x")
+Label(header, text="Registro de Frequência", font=("Arial", 18, "bold"), fg="white", bg="#003366").pack(pady=10)
+
+main_frame = Frame(root, bg="#f0f0f0")
+main_frame.pack(padx=20, pady=20, fill="both", expand=True)
+
+Label(main_frame, text="ID do Funcionário:", font=("Arial", 10), bg="#f0f0f0").pack(pady=5)
+entry_funcionario_id = Entry(main_frame, font=("Arial", 10))
 entry_funcionario_id.pack(pady=5)
 
-Button(root, text="Registrar Entrada", command=registrar_entrada).pack(pady=10)
-Button(root, text="Registrar Saída", command=registrar_saida).pack(pady=10)
+Button(main_frame, text="Registrar Entrada", command=registrar_entrada, bg="#003366", fg="white", font=("Arial", 10)).pack(pady=10)
+Button(main_frame, text="Registrar Saída", command=registrar_saida, bg="#003366", fg="white", font=("Arial", 10)).pack(pady=10)
+
+list_frame = LabelFrame(main_frame, text="Histórico de Frequência", font=("Arial", 12, "bold"), bg="#f0f0f0", fg="#003366")
+list_frame.pack(fill="both", expand=True, pady=10)
+
+colunas = ("ID", "Entrada", "Saída", "Tipo", "Tempo Trabalhado")
+listbox_frequencia = ttk.Treeview(list_frame, columns=colunas, show="headings", height=10)
+for col in colunas:
+    listbox_frequencia.heading(col, text=col)
+    listbox_frequencia.column(col, width=150, anchor="center")
+listbox_frequencia.pack(fill="both", expand=True, padx=10, pady=5)
+
+Button(list_frame, text="Atualizar Histórico", command=listar_frequencia, bg="#003366", fg="white", font=("Arial", 10)).pack(pady=5)
 
 root.mainloop()
 

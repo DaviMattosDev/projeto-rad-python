@@ -68,6 +68,7 @@ def iniciar_sistema():
         conn.commit()
         messagebox.showinfo("Sucesso", "Funcionário atualizado com sucesso!")
         limpar_campos()
+        listar_funcionarios()  # Atualiza a lista após a alteração
 
     def excluir_funcionario():
         id = entry_id.get()
@@ -80,6 +81,7 @@ def iniciar_sistema():
         conn.commit()
         messagebox.showinfo("Sucesso", "Funcionário excluído com sucesso!")
         limpar_campos()
+        listar_funcionarios()  # Atualiza a lista após a exclusão
 
     def limpar_campos():
         entry_nome.delete(0, END)
@@ -89,6 +91,17 @@ def iniciar_sistema():
         entry_id.delete(0, END)
         campo_var.set("")
         novo_valor_var.set("")
+
+    def preencher_novo_valor(*args):
+        campo = campo_var.get()
+        if campo == "cargo":
+            novo_valor_menu['values'] = ["Analista de Sistemas", "Desenvolvedor", "Gerente de Projetos", "Auxiliar Administrativo"]
+        elif campo == "departamento":
+            novo_valor_menu['values'] = ["TI", "Gestão", "Recursos Humanos", "Financeiro"]
+        elif campo == "situacao":
+            novo_valor_menu['values'] = ["home office", "presencial", "hibrido"]
+        else:
+            novo_valor_menu['values'] = []
 
     # Interface Gráfica
     main_frame = Frame(root, bg="#f0f0f0")
@@ -151,7 +164,11 @@ def iniciar_sistema():
 
     Label(update_frame, text="Novo Valor:", font=("Arial", 10), bg="#f0f0f0").grid(row=2, column=0, padx=10, pady=5, sticky="w")
     novo_valor_var = StringVar()
-    Entry(update_frame, textvariable=novo_valor_var, font=("Arial", 10)).grid(row=2, column=1, padx=10, pady=5)
+    novo_valor_menu = ttk.Combobox(update_frame, textvariable=novo_valor_var, font=("Arial", 10))
+    novo_valor_menu.grid(row=2, column=1, padx=10, pady=5)
+
+    # Associar a função preencher_novo_valor ao evento de mudança no campo_var
+    campo_var.trace_add("write", lambda *args: preencher_novo_valor())
 
     Button(update_frame, text="Atualizar", command=atualizar_funcionario, bg="#003366", fg="white", font=("Arial", 10)).grid(row=3, column=0, pady=10)
     Button(update_frame, text="Excluir", command=excluir_funcionario, bg="#003366", fg="white", font=("Arial", 10)).grid(row=3, column=1, pady=10)
