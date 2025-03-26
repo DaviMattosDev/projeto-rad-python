@@ -31,7 +31,7 @@ def login():
         if perfil == "admin":
             open_admin_dashboard()
         elif perfil == "funcionario":
-            open_funcionario_dashboard()
+            open_funcionario_dashboard(username)
         elif perfil == "rh":
             open_rh_dashboard()
         elif perfil == "gestor":
@@ -73,7 +73,7 @@ def open_admin_dashboard():
     # Botão Deslogar na parte inferior
     Button(admin_win, text="Deslogar", command=logout, font=("Arial", 12), bg="#ff4d4d", fg="white").pack(side="bottom", pady=20)
 
-def open_funcionario_dashboard():
+def open_funcionario_dashboard(username):
     global current_window
     close_current_window()  # Fecha qualquer janela aberta
     func_win = Toplevel()
@@ -87,7 +87,7 @@ def open_funcionario_dashboard():
     func_win.protocol("WM_DELETE_WINDOW", on_close)
 
     # Carregar o painel do funcionário
-    funcionario_dashboard(func_win)
+    funcionario_dashboard(func_win, username)
 
     # Botão Deslogar na parte inferior
     Button(func_win, text="Deslogar", command=logout, font=("Arial", 12), bg="#ff4d4d", fg="white").pack(side="bottom", pady=20)

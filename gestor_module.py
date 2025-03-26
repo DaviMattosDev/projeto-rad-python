@@ -1,4 +1,4 @@
-from tkinter import Listbox, Spinbox, Toplevel, Label, Entry, Button, filedialog, messagebox, StringVar, Listbox
+from tkinter import Spinbox, Toplevel, Label, Entry, Button, filedialog, messagebox, StringVar, Listbox
 from tkinter import ttk
 from tkcalendar import DateEntry  # Importa o DateEntry para o calendário
 import sqlite3
@@ -21,6 +21,8 @@ def gestor_dashboard(gestor_win):
     ttk.Button(gestor_win, text="Ajustar Pontos", command=ajustar_pontos, style="TButton").pack(pady=10)
     ttk.Button(gestor_win, text="Gerar Relatório Individual", command=gerar_relatorio_individual, style="TButton").pack(pady=10)
 
+
+# Função para ajustar pontos
 def ajustar_pontos():
     ajuste_win = Toplevel()
     ajuste_win.title("Ajustar Pontos")
@@ -37,7 +39,7 @@ def ajustar_pontos():
             messagebox.showwarning("Erro", "Insira o username do funcionário!")
             return
 
-        conn = sqlite3.connect("sistema.db")  # Conexão com o banco de dados
+        conn = sqlite3.connect("sistema.db")
         cursor = conn.cursor()
 
         try:
@@ -56,7 +58,7 @@ def ajustar_pontos():
 
             funcionario_id, funcionario_nome = funcionario
 
-            # Janela para ajustar os pontos
+            # Criar uma nova janela para ajustar os pontos
             ajuste_detalhes_win = Toplevel()
             ajuste_detalhes_win.title(f"Ajustar Pontos - {funcionario_nome}")
             ajuste_detalhes_win.geometry("600x500")
@@ -64,7 +66,6 @@ def ajustar_pontos():
 
             # Exibir últimos pontos registrados
             Label(ajuste_detalhes_win, text="Últimos Pontos Registrados:", bg="#f0f0f0", font=("Arial", 12, "bold")).pack(pady=10)
-
             lista_pontos = Listbox(ajuste_detalhes_win, width=80, height=5, font=("Arial", 12))
             lista_pontos.pack(pady=5)
 
@@ -77,10 +78,13 @@ def ajustar_pontos():
             """, (funcionario_id,))
             ultimos_pontos = cursor.fetchall()
 
-            for ponto in ultimos_pontos:
-                entrada, saida = ponto
-                saida_text = saida if saida else "Não registrado"
-                lista_pontos.insert("end", f"Entrada: {entrada} | Saída: {saida_text}")
+            if not ultimos_pontos:
+                lista_pontos.insert("end", "Nenhum ponto registrado para este funcionário.")
+            else:
+                for ponto in ultimos_pontos:
+                    entrada, saida = ponto
+                    saida_text = saida if saida else "Não registrado"
+                    lista_pontos.insert("end", f"Entrada: {entrada} | Saída: {saida_text}")
 
             # Selecionar o tipo de ajuste (entrada ou saída)
             Label(ajuste_detalhes_win, text="Selecione o Tipo de Ajuste:", bg="#f0f0f0", font=("Arial", 12)).pack(pady=5)
@@ -108,22 +112,37 @@ def ajustar_pontos():
             Label(frame_horario, text=":", bg="#f0f0f0", font=("Arial", 12)).grid(row=0, column=3)
             Spinbox(frame_horario, from_=0, to=59, textvariable=segundo_var, width=5, font=("Arial", 12)).grid(row=0, column=4, padx=5)
 
+            # Função para salvar o ajuste
             def salvar_ajuste():
                 tipo = tipo_var.get()
                 data = data_entry.get_date().strftime('%Y-%m-%d')
                 hora = hora_var.get().zfill(2)
                 minuto = minuto_var.get().zfill(2)
                 segundo = segundo_var.get().zfill(2)
-
                 novo_horario = f"{data} {hora}:{minuto}:{segundo}"
 
                 try:
+                    # Primeiro, obter o ID do último registro de frequência
+                    cursor.execute("""
+                        SELECT id 
+                        FROM frequencia 
+                        WHERE funcionario_id = ?
+                        ORDER BY id DESC LIMIT 1
+                    """, (funcionario_id,))
+                    ultimo_registro = cursor.fetchone()
+
+                    if not ultimo_registro:
+                        messagebox.showerror("Erro", "Nenhum registro de ponto encontrado para este funcionário!")
+                        return
+
+                    ultimo_id = ultimo_registro[0]
+
+                    # Agora, atualizar o campo específico (entrada ou saída)
                     cursor.execute(f"""
                         UPDATE frequencia 
                         SET {tipo} = ?
-                        WHERE funcionario_id = ?
-                        ORDER BY id DESC LIMIT 1
-                    """, (novo_horario, funcionario_id))
+                        WHERE id = ?
+                    """, (novo_horario, ultimo_id))
 
                     conn.commit()
                     messagebox.showinfo("Sucesso", "Pontos ajustados com sucesso!")
@@ -132,13 +151,15 @@ def ajustar_pontos():
                 except Exception as e:
                     messagebox.showerror("Erro", f"Erro ao ajustar pontos: {e}")
 
+            # Botão para salvar o ajuste
             ttk.Button(ajuste_detalhes_win, text="Salvar Ajuste", command=salvar_ajuste).pack(pady=20)
 
         finally:
             conn.close()  # Fecha a conexão apenas após concluir todas as operações
 
+    # Botão para buscar o funcionário
     ttk.Button(ajuste_win, text="Buscar Funcionário", command=buscar_funcionario).pack(pady=10)
-
+# Função para gerar relatório individual
 def gerar_relatorio_individual():
     relatorio_win = Toplevel()
     relatorio_win.title("Relatório Individual")
@@ -174,16 +195,16 @@ def gerar_relatorio_individual():
 
             funcionario_id, funcionario_nome = funcionario
 
+            # Carregar registros de frequência do funcionário
             cursor.execute("""
                 SELECT entrada, saida 
                 FROM frequencia 
                 WHERE funcionario_id = ?
             """, (funcionario_id,))
-
             registros = cursor.fetchall()
 
             total_horas = 0
-            relatorio_texto = f"Relatório de Ponto - {funcionario_nome}\n\n"
+            relatorio_texto = f"Relatório de Ponto - {funcionario_nome}\n"
 
             for registro in registros:
                 entrada = datetime.strptime(registro[0], "%Y-%m-%d %H:%M:%S")
@@ -210,7 +231,11 @@ def gerar_relatorio_individual():
                     file.write(relatorio_texto)
                 messagebox.showinfo("Sucesso", "Relatório gerado e salvo com sucesso!")
 
+        except Exception as e:
+            messagebox.showerror("Erro", f"Erro ao gerar relatório: {e}")
+
         finally:
             conn.close()  # Fecha a conexão apenas após concluir todas as operações
 
+    # Botão para buscar o funcionário
     ttk.Button(relatorio_win, text="Buscar Funcionário", command=buscar_funcionario).pack(pady=10)
