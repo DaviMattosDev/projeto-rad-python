@@ -43,11 +43,12 @@ O **Projeto RAD Python** é uma aplicação desktop desenvolvida com Python e Tk
 O projeto é composto por:
 
 1. **`main.py`**: Script principal que contém a interface gráfica e a lógica do sistema.
-2. **`login_utils.py`**: Módulo responsável pela autenticação de usuários.
-3. **`frequencia_funcionario.py`**: Módulo para funcionários e interações com o banco de dados.
-4. **`gerenciador_departamentos.py`**: Módulo para manutenção de departamento e interações com o banco de dados.
-5. **`gerenciador_frequencia.py`**: Módulo para manutenção de funcionários e interações com o banco de dados.
-6. **`criar_banco.py`**: Script principal da criação do banco de dados.
+2. **`login.py`**: Módulo responsável pela autenticação de usuários.
+3. **`funcionario_module.py`**: Módulo para funcionários e interações com o banco de dados.
+4. **`gestor_module.py`**: Módulo para manutenção de frequência dos funcionários e interações com o banco de dados.
+5. **`rh_module.py`**: Módulo para manutenção de funcionários e interações com o banco de dados.
+6. **`admin_module.py`**: Módulo para manutenção de departamento e interações com o banco de dados.
+7. **`database.py`**: Script principal da criação do banco de dados.
 
 ---
 
@@ -102,53 +103,115 @@ python main.py
 Este é o coração do sistema, onde a interface gráfica e a lógica principal estão implementadas.
 
 #### Funcionalidades:
-- **Alterar Status de Frequência**:
-  - Insira o **ID do Funcionário** no campo correspondente.
-  - Selecione o **Novo Status** no menu suspenso (`pendente`, `confirmado`, `nao_confirmado`).
-  - Clique no botão **Alterar Status** para atualizar o status no banco de dados.
+- **Login de Usuários**:
+  - Insira o **Usuário** e **Senha** na tela inicial.
+  - O sistema autentica o usuário com base nas credenciais armazenadas no banco de dados (`usuarios`).
+  - Perfis disponíveis: `admin`, `funcionario`, `rh`, `gestor`.
 
-- **Gerar Relatório de Salário**:
-  - Clique no botão **Gerar Relatório de Salário**.
-  - Um arquivo chamado `relatorio_salario.txt` será criado na mesma pasta do script.
-  - O relatório inclui informações como nome do funcionário, dias trabalhados, horas totais e status de pagamento.
+- **Painel do Administrador**:
+  - Acesso ao menu principal para gerenciar funcionários:
+    - **Adicionar Funcionário**: Cadastre novos funcionários preenchendo os campos obrigatórios (nome, cargo, departamento, situação, data de início, senha). O sistema gera automaticamente um `username` no formato `nome.sobrenome` e define o perfil como `funcionario`.
+    - **Listar Funcionários**: Exibe uma lista de todos os funcionários cadastrados, incluindo detalhes como ID, nome, cargo, departamento, situação e data de início.
+    - **Registrar Frequência**: Permite registrar entrada ou saída para funcionários selecionados.
+    - **Gerar Relatórios**: Exibe registros de frequência com detalhes sobre entradas e saídas.
 
-- **Listar Frequência**:
-  - Clique no botão **Listar Frequência** para exibir todos os registros na tabela.
-  - A tabela exibe informações como ID, Funcionário ID, Entrada, Saída, Tipo e Status (com cores indicando o estado).
+- **Painel do Funcionário**:
+  - Após login, o funcionário pode:
+    - Registrar sua própria entrada e saída.
+    - Visualizar boas-vindas personalizadas com base no nome completo.
+
+- **Painel de RH**:
+  - Gerenciamento avançado de funcionários:
+    - **Cadastrar Funcionário**: Semelhante ao administrador, mas com foco em RH.
+    - **Remover Funcionário**: Remova funcionários pelo ID ou username.
+    - **Listar Funcionários**: Exibe todos os funcionários cadastrados.
+
+- **Painel do Gestor**:
+  - Ajuste de pontos:
+    - Insira o `username` do funcionário para ajustar entradas ou saídas específicas.
+    - Use o seletor de data e horário para definir o novo valor.
+  - Geração de relatórios individuais:
+    - Insira o `username` do funcionário para gerar um relatório detalhado com horas trabalhadas e status de cumprimento das 40 horas semanais.
+    - O relatório pode ser salvo como um arquivo `.txt`.
 
 #### Navegação:
 - Use a **barra de rolagem vertical** à direita para navegar pelo conteúdo, caso ele ultrapasse o espaço visível.
 
 ---
 
-### **Login (`login_utils.py`)**
+### **Login (`login.py`)**
 Este módulo é responsável pela autenticação de usuários.
 
 #### Como Funciona:
 - O sistema verifica as credenciais inseridas na janela de login.
 - Exemplo de credenciais válidas:
   - **Usuário**: admin
-  - **Senha**: 12345
+  - **Senha**: senha_admin (ou qualquer senha previamente configurada e hashada).
 
 #### Personalização:
-- Você pode adicionar novos usuários e senhas diretamente no código ou implementar um sistema de cadastro de usuários no futuro.
+- Novos usuários podem ser adicionados diretamente no banco de dados (`sistema.db`) ou cadastrados via interface (no caso de funcionários).
+- Senhas são armazenadas no banco de dados como hashes SHA-256 para maior segurança.
 
 ---
 
-### **Gerenciamento de Funcionários (`funcionarios.py`)**
+### **Gerenciamento de Funcionários (`rh_module.py`)**
 Este módulo gerencia as operações relacionadas aos funcionários e ao banco de dados.
 
 #### Funcionalidades:
 - **Cadastro de Funcionários**:
   - Insira o nome, cargo, departamento, situação e data de início.
-  - Clique no botão **Cadastrar** para salvar os dados no banco de dados.
+  - Defina uma senha para o funcionário. O sistema gera automaticamente o `username` no formato `nome.sobrenome` e associa o perfil `funcionario`.
+  - O cadastro inclui a criação de um registro na tabela `funcionarios` e um registro correspondente na tabela `usuarios`.
 
 - **Atualização/Exclusão de Funcionários**:
-  - Insira o **ID do Funcionário** e selecione o campo a ser atualizado.
-  - Informe o novo valor e clique em **Atualizar** ou **Excluir**.
+  - A exclusão pode ser feita pelo ID ou `username` (via painel de RH).
+  - Atualizações devem ser realizadas diretamente no banco de dados ou por meio de novas funcionalidades no futuro.
 
 #### Banco de Dados:
-- O módulo interage diretamente com o banco de dados SQLite (`empresa.db`) para realizar operações CRUD (Create, Read, Update, Delete).
+- O módulo interage diretamente com o banco de dados SQLite (`sistema.db`) para realizar operações CRUD (Create, Read, Update, Delete).
+- Tabelas principais:
+  - `funcionarios`: Armazena informações dos funcionários (ID, nome, cargo, departamento, situação, data de início, senha).
+  - `usuarios`: Armazena credenciais de login (ID, username, senha hash, perfil, funcionario_id).
+  - `frequencia`: Registra entradas e saídas dos funcionários.
+
+---
+
+### **Ajustes de Pontos (`gestor_module.py`)**
+Este módulo permite que gestores ajustem os pontos de funcionários.
+
+#### Funcionalidades:
+- **Buscar Funcionário**:
+  - Insira o `username` do funcionário para carregar seus registros de frequência mais recentes.
+- **Ajustar Entrada/Saída**:
+  - Selecione o tipo de ajuste (entrada ou saída).
+  - Use o calendário e os seletores de horário para definir o novo valor.
+  - Salve o ajuste para atualizar o último registro de frequência do funcionário.
+
+#### Relatórios Individuais:
+- Gere relatórios detalhados com base no `username` do funcionário.
+- O relatório inclui:
+  - Entradas e saídas registradas.
+  - Horas trabalhadas totais.
+  - Status de cumprimento das 40 horas semanais.
+- O relatório pode ser exportado como um arquivo `.txt`.
+
+---
+
+### **Segurança e Confiabilidade**
+- **Hash de Senhas**: Todas as senhas são armazenadas como hashes SHA-256 para proteger as credenciais dos usuários.
+- **Validação de Dados**: O sistema valida todos os campos antes de salvar no banco de dados, garantindo consistência.
+- **Mensagens de Erro**: Mensagens claras orientam o usuário em caso de falhas ou inconsistências.
+
+---
+
+### **Próximos Passos**
+- Implementar recuperação de senha para usuários.
+- Adicionar suporte para exportação de relatórios em formatos como PDF ou Excel.
+- Criar funcionalidade para ajustar múltiplos pontos simultaneamente no painel do gestor.
+
+--- 
+
+Essa documentação está alinhada com o estado atual do sistema e cobre todas as funcionalidades implementadas. 😊
 
 ---
 
