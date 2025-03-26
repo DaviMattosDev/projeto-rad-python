@@ -14,6 +14,10 @@
 
 ---
 
+Com base nas atualizações do sistema e nos módulos fornecidos, aqui está a versão atualizada do **Sumário**:
+
+---
+
 ## 📋 Sumário
 
 - [Sobre o Projeto](#sobre-o-projeto)
@@ -24,8 +28,11 @@
   - [Gerenciamento de Departamento (`gerenciador_departamentos.py`)](#gerenciamento-de-departamentospy)
   - [Script Principal (`main.py`)](#mainpy)
   - [Login (`login_utils.py`)](#login_utilspy)
-  - [Gerenciamento de Funcionários (`funcionarios.py`)](#gerenciamento-de-frequênciapy)
-  - [Frequência de funcionario (`frequencia_funcionario.py`)](#frequencia-funcionariopy)
+  - [Gerenciamento de Funcionários (`funcionarios.py`)](#gerenciamento-de-funcionáriospy)
+  - [Frequência de Funcionário (`frequencia_funcionario.py`)](#frequencia-funcionariopy)
+  - [Painel do Administrador (`admin_module.py`)](#painel-do-administradorpy)
+  - [Painel de RH (`rh_module.py`)](#painel-de-rhpy)
+  - [Painel do Gestor (`gestor_module.py`)](#painel-do-gestorpy)
 - [Contribuição](#contribuição)
 - [Colaboradores](#colaboradores)
 - [Licença](#licença)
