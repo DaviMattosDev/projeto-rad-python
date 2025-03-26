@@ -76,7 +76,7 @@ Antes de começar, verifique se você atendeu aos seguintes requisitos:
   pip install tkinter sqlite3 tkcalendar
   ```
 
-- **Banco de Dados SQLite**: O arquivo `empresa.db` será criado automaticamente ao executar o sistema pela primeira vez. Certifique-se de que a pasta do projeto tenha permissão de escrita.
+- **Banco de Dados SQLite**: O arquivo `sistema.db` será criado automaticamente ao executar o sistema pela primeira vez. Certifique-se de que a pasta do projeto tenha permissão de escrita.
 
 ---
 
