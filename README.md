@@ -4,7 +4,7 @@
 
 ![GitHub repo size](https://img.shields.io/github/repo-size/DaviMattosDev/projeto-rad-python?style=for-the-badge)
 ![GitHub language count](https://img.shields.io/github/languages/count/DaviMattosDev/projeto-rad-python?style=for-the-badge)
-![GitHub forks](https://img.shields.io/github/forks/DaviMattosDev/projeto-rad-python?style=for-the-badge)
+![GitHub commits](https://img.shields.io/github/commit-activity/t/DaviMattosDev/projeto-rad-python)
 ![GitHub issues](https://img.shields.io/github/issues/DaviMattosDev/projeto-rad-python?style=for-the-badge)
 ![GitHub pull requests](https://img.shields.io/github/issues-pr/DaviMattosDev/projeto-rad-python?style=for-the-badge)
 
