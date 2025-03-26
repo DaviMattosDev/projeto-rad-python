@@ -40,7 +40,7 @@ Com base nas atualizações do sistema e nos módulos fornecidos, aqui está a v
 
 ## 🌟 Sobre o Projeto
 
-O **Projeto RAD Python** é uma aplicação desktop desenvolvida com Python e Tkinter, integrada a um banco de dados SQLite. Ele permite gerenciar funcionários e suas frequências, além de gerar relatórios detalhados sobre salários e horas trabalhadas. Este projeto é ideal para quem deseja aprender ou implementar práticas de desenvolvimento ágil (RAD) em Python.
+O **Projeto RAD Python** é uma aplicação desktop desenvolvida com Python e Tkinter, integrada a um banco de dados SQLite. Ele permite gerenciar funcionários e suas frequências, além de gerar relatórios detalhados sobre salários e horas trabalhadas. Este projeto é para implementar práticas de desenvolvimento ágil (RAD) em Python.
 
 ---
 
