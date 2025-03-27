@@ -8,7 +8,7 @@
 ![GitHub issues](https://img.shields.io/github/issues/DaviMattosDev/projeto-rad-python?style=for-the-badge)
 ![GitHub pull requests](https://img.shields.io/github/issues-pr/DaviMattosDev/projeto-rad-python?style=for-the-badge)
 
-<img src="imagem.png" alt="Logo do Projeto" width="200">
+<img src="https://www.python.org/static/community_logos/python-logo-generic.svg" alt="Logo do Projeto" width="300">
 
 > O **Projeto RAD Python** é uma aplicação desenvolvida para demonstrar práticas de desenvolvimento ágil e eficiente em Python. Ele foi projetado para ser modular, fácil de usar e extensível.
 
