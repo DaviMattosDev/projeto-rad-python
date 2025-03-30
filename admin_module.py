@@ -1,9 +1,7 @@
-from tkinter import Toplevel, Label, Entry, Button, messagebox, StringVar, Listbox, Scrollbar
-from tkinter import ttk
-from tkcalendar import DateEntry  # Importa o DateEntry para o calendário
+from tkinter import Toplevel, Label, Entry, Button, messagebox, StringVar, ttk
 import sqlite3
-from datetime import datetime
 import hashlib
+
 
 def admin_dashboard(admin_win):
     # Configurações da janela do administrador
@@ -16,227 +14,200 @@ def admin_dashboard(admin_win):
     style.configure("TButton", font=("Arial", 12), padding=5)
     style.configure("TLabel", font=("Arial", 12), background="#f0f0f0")
 
-    Label(admin_win, text="Gerenciamento de Funcionários", bg="#f0f0f0", font=("Arial", 16, "bold")).pack(pady=10)
-    ttk.Button(admin_win, text="Adicionar Funcionário", command=add_funcionario, style="TButton").pack(pady=5)
-    ttk.Button(admin_win, text="Listar Funcionários", command=list_funcionarios, style="TButton").pack(pady=5)
-    ttk.Button(admin_win, text="Registrar Frequência", command=registrar_frequencia, style="TButton").pack(pady=5)
-    ttk.Button(admin_win, text="Gerar Relatórios", command=gerar_relatorios, style="TButton").pack(pady=5)
-    
-def add_funcionario():
-    add_win = Toplevel()
-    add_win.title("Adicionar Funcionário")
-    add_win.geometry("550x600")
-    add_win.configure(bg="#f0f0f0")
+    # Título
+    Label(admin_win, text="Gerenciamento de Usuários",
+          bg="#f0f0f0", font=("Arial", 16, "bold")).pack(pady=10)
 
-    # Criar frame de formulário
-    form_frame = ttk.LabelFrame(add_win, text="Cadastro de Funcionário")
-    form_frame.pack(fill="both", expand=True, padx=10, pady=10)
+    # Botões principais
+    ttk.Button(admin_win, text="Criar Usuário (RH/Gestor)",
+               command=create_user_rh_gestor, style="TButton").pack(pady=5)
+    ttk.Button(admin_win, text="Listar Todos os Usuários",
+               command=list_all_users, style="TButton").pack(pady=5)
+    ttk.Button(admin_win, text="Alterar Perfil de Usuário",
+               command=change_user_role, style="TButton").pack(pady=5)
+    ttk.Button(admin_win, text="Remover Usuário",
+               command=remove_user, style="TButton").pack(pady=5)
 
-    # Configurar colunas para expansão
-    form_frame.grid_columnconfigure(1, weight=1)
 
-    # Nome
-    Label(form_frame, text="Nome Completo:", bg="#f0f0f0", font=("Arial", 12)).grid(row=0, column=0, padx=10, pady=5, sticky="w")
-    nome_entry = Entry(form_frame, font=("Arial", 12))
-    nome_entry.grid(row=0, column=1, padx=10, pady=5, sticky="ew")
+def create_user_rh_gestor():
+    def save_user():
+        username = entry_username.get()
+        password = entry_password.get()
+        role = role_var.get()
 
-    # Cargo
-    Label(form_frame, text="Cargo:", bg="#f0f0f0", font=("Arial", 12)).grid(row=1, column=0, padx=10, pady=5, sticky="w")
-    cargo_var = StringVar()
-    cargo_combobox = ttk.Combobox(form_frame, textvariable=cargo_var, values=["Analista de Sistemas", "Desenvolvedor", "Gerente de Projetos", "Auxiliar Administrativo"], font=("Arial", 12))
-    cargo_combobox.grid(row=1, column=1, padx=10, pady=5, sticky="ew")
-
-    # Departamento
-    Label(form_frame, text="Departamento:", bg="#f0f0f0", font=("Arial", 12)).grid(row=2, column=0, padx=10, pady=5, sticky="w")
-    departamento_var = StringVar()
-    departamento_combobox = ttk.Combobox(form_frame, textvariable=departamento_var, values=["TI", "Gestão", "Recursos Humanos", "Financeiro"], font=("Arial", 12))
-    departamento_combobox.grid(row=2, column=1, padx=10, pady=5, sticky="ew")
-
-    # Situação
-    Label(form_frame, text="Situação:", bg="#f0f0f0", font=("Arial", 12)).grid(row=3, column=0, padx=10, pady=5, sticky="w")
-    situacao_var = StringVar()
-    situacao_combobox = ttk.Combobox(form_frame, textvariable=situacao_var, values=["home office", "presencial", "híbrido"], font=("Arial", 12))
-    situacao_combobox.grid(row=3, column=1, padx=10, pady=5, sticky="ew")
-
-    # Data de Início
-    Label(form_frame, text="Data de Início:", bg="#f0f0f0", font=("Arial", 12)).grid(row=4, column=0, padx=10, pady=5, sticky="w")
-    entry_data_inicio = DateEntry(form_frame, date_pattern='yyyy-mm-dd', font=("Arial", 12))
-    entry_data_inicio.grid(row=4, column=1, padx=10, pady=5, sticky="ew")
-
-    # Senha
-    Label(form_frame, text="Senha:", bg="#f0f0f0", font=("Arial", 12)).grid(row=5, column=0, padx=10, pady=5, sticky="w")
-    entry_senha = Entry(form_frame, show="*", font=("Arial", 12))
-    entry_senha.grid(row=5, column=1, padx=10, pady=5, sticky="ew")
-
-    # Confirmar Senha
-    Label(form_frame, text="Confirmar Senha:", bg="#f0f0f0", font=("Arial", 12)).grid(row=6, column=0, padx=10, pady=5, sticky="w")
-    entry_confirmar_senha = Entry(form_frame, show="*", font=("Arial", 12))
-    entry_confirmar_senha.grid(row=6, column=1, padx=10, pady=5, sticky="ew")
-
-    # Função para salvar o funcionário
-    def salvar_funcionario():
-        nome = nome_entry.get()
-        cargo = cargo_var.get()
-        departamento = departamento_var.get()
-        situacao = situacao_var.get()
-        data_inicio = entry_data_inicio.get_date().strftime('%Y-%m-%d')
-        senha = entry_senha.get()
-        confirmar_senha = entry_confirmar_senha.get()
-
-        if not nome or not cargo or not departamento or not situacao or not data_inicio or not senha or not confirmar_senha:
+        if not username or not password or not role:
             messagebox.showwarning("Erro", "Preencha todos os campos!")
             return
 
-        if senha != confirmar_senha:
-            messagebox.showerror("Erro", "As senhas não coincidem!")
-            return
-
-        # Gerar o username baseado no nome completo (ex: davi.mattos)
-        username = nome.lower().replace(" ", ".")
-        # Gerar o hash da senha
-        senha_hash = hashlib.sha256(senha.encode()).hexdigest()
-
-        conn = sqlite3.connect("sistema.db")
+        conn = sqlite3.connect('sistema.db')
         cursor = conn.cursor()
 
         try:
-            # Inserir o funcionário na tabela funcionarios
-            cursor.execute("""
-                INSERT INTO funcionarios (nome, cargo, departamento, situacao, data_inicio, senha)
-                VALUES (?, ?, ?, ?, ?, ?)
-            """, (nome, cargo, departamento, situacao, data_inicio, senha))
+            # Verificar se o usuário já existe
+            cursor.execute(
+                "SELECT COUNT(*) FROM usuarios WHERE username = ?", (username,))
+            if cursor.fetchone()[0] > 0:
+                messagebox.showerror("Erro", "Usuário já existe!")
+                return
 
-            # Pegar o ID do funcionário inserido
-            funcionario_id = cursor.lastrowid
+            # Criar senha hash
+            senha_hash = hashlib.sha256(password.encode()).hexdigest()
 
-            # Inserir o usuário na tabela usuarios com perfil 'funcionario' e senha com hash
+            # Inserir o novo usuário
             cursor.execute("""
-                INSERT INTO usuarios (username, senha, perfil, funcionario_id)
-                VALUES (?, ?, ?, ?)
-            """, (username, senha_hash, "funcionario", funcionario_id))
+            INSERT INTO usuarios (username, senha, perfil)
+            VALUES (?, ?, ?)
+            """, (username, senha_hash, role))
 
             conn.commit()
-            messagebox.showinfo("Sucesso", "Funcionário cadastrado com sucesso!")
-            add_win.destroy()
+            messagebox.showinfo(
+                "Sucesso", f"Usuário '{role}' criado com sucesso!")
+            create_window.destroy()
 
         except Exception as e:
-            messagebox.showerror("Erro", f"Erro ao cadastrar funcionário: {e}")
+            messagebox.showerror("Erro", f"Erro ao criar usuário: {e}")
         finally:
             conn.close()
 
-    # Botão Salvar
-    ttk.Button(form_frame, text="Salvar", command=salvar_funcionario).grid(row=7, column=0, columnspan=2, pady=20)
+    # Janela de criação de usuário
+    create_window = Toplevel()
+    create_window.title("Criar Usuário RH/Gestor")
+    create_window.geometry("400x300")
+    create_window.configure(bg="#f0f0f0")
 
-def list_funcionarios():
-    list_win = Toplevel()
-    list_win.title("Lista de Funcionários")
-    list_win.geometry("700x400")
-    list_win.configure(bg="#f0f0f0")
+    Label(create_window, text="Username:",
+          bg="#f0f0f0", font=("Arial", 12)).pack(pady=5)
+    entry_username = Entry(create_window, font=("Arial", 12))
+    entry_username.pack(pady=5)
 
-    listbox = ttk.Treeview(list_win, columns=("ID", "Nome", "Cargo", "Departamento", "Situação", "Data Início"), show="headings", height=15)
-    listbox.heading("ID", text="ID")
-    listbox.heading("Nome", text="Nome")
-    listbox.heading("Cargo", text="Cargo")
-    listbox.heading("Departamento", text="Departamento")
-    listbox.heading("Situação", text="Situação")
-    listbox.heading("Data Início", text="Data Início")
-    listbox.column("ID", width=50, anchor="center")
-    listbox.column("Nome", width=150, anchor="w")
-    listbox.column("Cargo", width=150, anchor="w")
-    listbox.column("Departamento", width=100, anchor="w")
-    listbox.column("Situação", width=100, anchor="w")
-    listbox.column("Data Início", width=100, anchor="center")
-    listbox.pack(side="left", fill="y", padx=10, pady=10)
+    Label(create_window, text="Senha:", bg="#f0f0f0",
+          font=("Arial", 12)).pack(pady=5)
+    entry_password = Entry(create_window, show="*", font=("Arial", 12))
+    entry_password.pack(pady=5)
 
-    scrollbar = ttk.Scrollbar(list_win, orient="vertical", command=listbox.yview)
-    scrollbar.pack(side="right", fill="y")
-    listbox.config(yscrollcommand=scrollbar.set)
+    Label(create_window, text="Perfil:", bg="#f0f0f0",
+          font=("Arial", 12)).pack(pady=5)
+    role_var = StringVar()
+    roles = ["rh", "gestor"]
+    ttk.Combobox(create_window, textvariable=role_var, values=roles,
+                 state="readonly", font=("Arial", 12)).pack(pady=5)
 
-    # Carregar funcionários
-    conn = sqlite3.connect("sistema.db")
+    Button(create_window, text="Salvar", command=save_user,
+           bg="#003366", fg="white", font=("Arial", 12)).pack(pady=10)
+
+
+def list_all_users():
+    list_window = Toplevel()
+    list_window.title("Lista de Usuários")
+    list_window.geometry("800x400")
+    list_window.configure(bg="#f0f0f0")
+
+    tree = ttk.Treeview(list_window, columns=(
+        "ID", "Username", "Perfil"), show="headings", height=15)
+    tree.heading("ID", text="ID")
+    tree.heading("Username", text="Username")
+    tree.heading("Perfil", text="Perfil")
+    tree.column("ID", width=50, anchor="center")
+    tree.column("Username", width=200, anchor="w")
+    tree.column("Perfil", width=150, anchor="w")
+    tree.pack(fill="both", expand=True, padx=10, pady=10)
+
+    conn = sqlite3.connect('sistema.db')
     cursor = conn.cursor()
-    cursor.execute("SELECT id, nome, cargo, departamento, situacao, data_inicio FROM funcionarios")
+    cursor.execute("SELECT id, username, perfil FROM usuarios")
     for row in cursor.fetchall():
-        listbox.insert("", "end", values=row)
+        tree.insert("", "end", values=row)
     conn.close()
 
-def registrar_frequencia():
-    freq_win = Toplevel()
-    freq_win.title("Registrar Frequência")
-    freq_win.geometry("500x400")
-    freq_win.configure(bg="#f0f0f0")
 
-    Label(freq_win, text="Selecione o funcionário:", bg="#f0f0f0", font=("Arial", 12)).pack(pady=10)
-    listbox = Listbox(freq_win, width=60, height=10, font=("Arial", 12))
-    listbox.pack(pady=10)
+def change_user_role():
+    def update_role():
+        username = entry_username.get()
+        novo_perfil = novo_perfil_var.get()
 
-    scrollbar = Scrollbar(freq_win, orient="vertical")
-    scrollbar.config(command=listbox.yview)
-    scrollbar.pack(side="right", fill="y")
-    listbox.config(yscrollcommand=scrollbar.set)
-
-    # Carregar funcionários na lista
-    conn = sqlite3.connect("sistema.db")
-    cursor = conn.cursor()
-    cursor.execute("SELECT id, nome FROM funcionarios")
-    funcionarios = cursor.fetchall()
-    conn.close()
-
-    for funcionario in funcionarios:
-        listbox.insert("end", f"{funcionario[1]}")
-
-    def registrar():
-        selected_index = listbox.curselection()
-        if not selected_index:
-            messagebox.showwarning("Aviso", "Selecione um funcionário!")
+        if not username or not novo_perfil:
+            messagebox.showwarning("Erro", "Preencha todos os campos!")
             return
 
-        funcionario_id = funcionarios[selected_index[0]][0]
-        agora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-        conn = sqlite3.connect("sistema.db")
+        conn = sqlite3.connect('sistema.db')
         cursor = conn.cursor()
 
         try:
-            cursor.execute("INSERT INTO frequencia (funcionario_id, entrada) VALUES (?, ?)", (funcionario_id, agora))
-            conn.commit()
-            messagebox.showinfo("Sucesso", "Frequência registrada com sucesso!")
-            freq_win.destroy()
+            # Verificar se o usuário existe
+            cursor.execute(
+                'SELECT COUNT(*) FROM usuarios WHERE username = ?', (username,))
+            if cursor.fetchone()[0] == 0:  # Se o nome de usuário não existir
+                messagebox.showerror("Erro", "Usuário não encontrado!")
+                return
 
+            # Atualizar o perfil do usuário
+            cursor.execute(
+                'UPDATE usuarios SET perfil = ? WHERE username = ?', (novo_perfil, username))
+            conn.commit()
+            messagebox.showinfo(
+                "Sucesso", f"Perfil do usuário '{username}' alterado para '{novo_perfil}'!")
+            alterar_window.destroy()
         except Exception as e:
-            messagebox.showerror("Erro", f"Erro ao registrar frequência: {e}")
+            messagebox.showerror("Erro", f"Erro ao alterar perfil: {e}")
         finally:
             conn.close()
 
-    ttk.Button(freq_win, text="Registrar", command=registrar).pack(pady=10)
+    # Janela para alterar perfil
+    alterar_window = Toplevel()
+    alterar_window.title("Alterar Perfil")
+    alterar_window.geometry("400x300")
+    alterar_window.configure(bg="#f0f0f0")
 
-def gerar_relatorios():
-    relatorio_win = Toplevel()
-    relatorio_win.title("Relatórios")
-    relatorio_win.geometry("700x500")
-    relatorio_win.configure(bg="#f0f0f0")
+    Label(alterar_window, text="Username:",
+          bg="#f0f0f0", font=("Arial", 12)).pack(pady=5)
+    entry_username = Entry(alterar_window, font=("Arial", 12))
+    entry_username.pack(pady=5)
 
-    Label(relatorio_win, text="Relatórios de Frequência", bg="#f0f0f0", font=("Arial", 16, "bold")).pack(pady=10)
-    listbox = Listbox(relatorio_win, width=80, height=15, font=("Arial", 12))
-    listbox.pack(pady=10)
+    Label(alterar_window, text="Novo Perfil:",
+          bg="#f0f0f0", font=("Arial", 12)).pack(pady=5)
+    novo_perfil_var = StringVar()
+    perfis_disponiveis = ["funcionario", "gestor", "rh"]
+    ttk.Combobox(alterar_window, textvariable=novo_perfil_var, values=perfis_disponiveis,
+                 state="readonly", font=("Arial", 12)).pack(pady=5)
 
-    scrollbar = Scrollbar(relatorio_win, orient="vertical")
-    scrollbar.config(command=listbox.yview)
-    scrollbar.pack(side="right", fill="y")
-    listbox.config(yscrollcommand=scrollbar.set)
+    Button(alterar_window, text="Salvar Alteração", command=update_role, bg="#003366",
+           fg="white", font=("Arial", 12)).pack(pady=10)
 
-    # Carregar registros de frequência
-    conn = sqlite3.connect("sistema.db")
-    cursor = conn.cursor()
-    cursor.execute("""
-        SELECT f.nome, fr.entrada, fr.saida 
-        FROM frequencia fr
-        JOIN funcionarios f ON fr.funcionario_id = f.id
-    """)
-    registros = cursor.fetchall()
-    conn.close()
 
-    for registro in registros:
-        nome, entrada, saida = registro
-        saida_text = saida if saida else "Não registrado"
-        listbox.insert("end", f"{nome} - Entrada: {entrada} | Saída: {saida_text}")
+def remove_user():
+    def delete_user():
+        user_id = entry_user_id.get()
+
+        if not user_id:
+            messagebox.showwarning("Erro", "Informe o ID do usuário!")
+            return
+
+        if not messagebox.askyesno("Confirmação", "Tem certeza que deseja remover este usuário?"):
+            return
+
+        conn = sqlite3.connect('sistema.db')
+        cursor = conn.cursor()
+
+        try:
+            cursor.execute("DELETE FROM usuarios WHERE id = ?", (user_id,))
+            conn.commit()
+            messagebox.showinfo("Sucesso", "Usuário removido com sucesso!")
+            remove_window.destroy()
+        except Exception as e:
+            messagebox.showerror("Erro", f"Erro ao remover usuário: {e}")
+        finally:
+            conn.close()
+
+    # Janela de remoção de usuário
+    remove_window = Toplevel()
+    remove_window.title("Remover Usuário")
+    remove_window.geometry("400x200")
+    remove_window.configure(bg="#f0f0f0")
+
+    Label(remove_window, text="ID do Usuário:",
+          bg="#f0f0f0", font=("Arial", 12)).pack(pady=5)
+    entry_user_id = Entry(remove_window, font=("Arial", 12))
+    entry_user_id.pack(pady=5)
+
+    Button(remove_window, text="Remover", command=delete_user,
+           bg="#FF0000", fg="white", font=("Arial", 12)).pack(pady=10)
