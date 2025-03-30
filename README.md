@@ -115,11 +115,11 @@ Este é o coração do sistema, onde a interface gráfica e a lógica principal 
   - Perfis disponíveis: `admin`, `funcionario`, `rh`, `gestor`.
 
 - **Painel do Administrador**:
-  - Acesso ao menu principal para gerenciar funcionários:
-    - **Adicionar Funcionário**: Cadastre novos funcionários preenchendo os campos obrigatórios (nome, cargo, departamento, situação, data de início, senha). O sistema gera automaticamente um `username` no formato `nome.sobrenome` e define o perfil como `funcionario`.
-    - **Listar Funcionários**: Exibe uma lista de todos os funcionários cadastrados, incluindo detalhes como ID, nome, cargo, departamento, situação e data de início.
-    - **Registrar Frequência**: Permite registrar entrada ou saída para funcionários selecionados.
-    - **Gerar Relatórios**: Exibe registros de frequência com detalhes sobre entradas e saídas.
+  - Acesso ao menu principal para gerenciar funcionários e operações relacionadas:
+    - **Adicionar Funcionário**: Cadastre novos perfil sendo eles gestor ou RH.
+    - **Listar Funcionários**: Exibe uma lista completa de todos os funcionários cadastrados, incluindo detalhes como ID, nome, cargo, departamento, situação e data de início. A interface utiliza um componente `Treeview` com suporte a rolagem para facilitar a visualização.
+    - **Alterar perfil**: Permite alterar o perfil de um funcionário para (funcionário, RH, Gestor).
+    - **Remover Funcionário**: Remova funcionários pelo ID ou username.
 
 - **Painel do Funcionário**:
   - Após login, o funcionário pode:
