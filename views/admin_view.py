@@ -4,13 +4,16 @@ from views.cadastrar_usuario_view import CadastrarUsuarioView
 from views.cadastrar_disciplina_view import CadastrarDisciplinaView
 from views.cadastrar_aluno_disciplina_view import CadastrarAlunoDisciplinaView
 
+
 class AdminView:
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("Administração")
-        self.root.geometry("800x600")
         self.root.resizable(False, False)
         self.root.configure(bg="#f5f5f5")
+
+        # Centralizar a janela principal
+        self.centralizar_janela(self.root, 800, 600)
 
         # Configuração do estilo
         style = ttk.Style()
@@ -40,21 +43,42 @@ class AdminView:
         for text, command in buttons:
             ttk.Button(button_frame, text=text, command=command, style="TButton").pack(fill="x", pady=5, padx=20)
 
+    def centralizar_janela(self, janela, largura, altura):
+        """Centraliza uma janela na tela."""
+        # Obter as dimensões da tela
+        largura_tela = janela.winfo_screenwidth()
+        altura_tela = janela.winfo_screenheight()
+
+        # Calcular as coordenadas x e y para centralizar a janela
+        pos_x = (largura_tela - largura) // 2
+        pos_y = (altura_tela - altura) // 2
+
+        # Definir a geometria da janela
+        janela.geometry(f"{largura}x{altura}+{pos_x}+{pos_y}")
+
     def cadastrar_aluno(self):
         from views.cadastrar_usuario_view import CadastrarUsuarioView
-        CadastrarUsuarioView("aluno").start()
+        view = CadastrarUsuarioView("aluno")
+        self.centralizar_janela(view.root, 500, 400)
+        view.start()
 
     def cadastrar_professor(self):
         from views.cadastrar_usuario_view import CadastrarUsuarioView
-        CadastrarUsuarioView("professor").start()
+        view = CadastrarUsuarioView("professor")
+        self.centralizar_janela(view.root, 500, 400)
+        view.start()
 
     def cadastrar_disciplina(self):
         from views.cadastrar_disciplina_view import CadastrarDisciplinaView
-        CadastrarDisciplinaView().start()
+        view = CadastrarDisciplinaView()
+        self.centralizar_janela(view.root, 500, 400)
+        view.start()
 
     def cadastrar_aluno_disciplina(self):
         from views.cadastrar_aluno_disciplina_view import CadastrarAlunoDisciplinaView
-        CadastrarAlunoDisciplinaView().start()
+        view = CadastrarAlunoDisciplinaView()
+        self.centralizar_janela(view.root, 500, 400)
+        view.start()
 
     def start(self):
         self.root.mainloop()
