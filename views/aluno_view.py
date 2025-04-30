@@ -2,14 +2,17 @@ import tkinter as tk
 from tkinter import ttk
 from models.aluno import Aluno
 
+
 class AlunoView:
     def __init__(self, usuario):
         self.usuario = usuario
         self.root = tk.Tk()
         self.root.title(f"Aluno: {usuario.nome_completo}")
-        self.root.geometry("800x600")
         self.root.resizable(False, False)
         self.root.configure(bg="#f5f5f5")
+
+        # Centralizar a janela principal
+        self.centralizar_janela(self.root, 800, 600)
 
         # Configuração do estilo
         style = ttk.Style()
@@ -87,6 +90,19 @@ class AlunoView:
         # Carregar conteúdo
         self.carregar_disciplinas()
         self.carregar_avaliacoes()
+
+    def centralizar_janela(self, janela, largura, altura):
+        """Centraliza uma janela na tela."""
+        # Obter as dimensões da tela
+        largura_tela = janela.winfo_screenwidth()
+        altura_tela = janela.winfo_screenheight()
+
+        # Calcular as coordenadas x e y para centralizar a janela
+        pos_x = (largura_tela - largura) // 2
+        pos_y = (altura_tela - altura) // 2
+
+        # Definir a geometria da janela
+        janela.geometry(f"{largura}x{altura}+{pos_x}+{pos_y}")
 
     def carregar_disciplinas(self):
         """Carrega as disciplinas cursadas pelo aluno com notas e frequência."""
