@@ -3,6 +3,7 @@ from tkinter import ttk, messagebox
 from tkcalendar import DateEntry
 from models.professor import ProfessorModel
 from datetime import datetime
+from views.trocar_senha_aluno_professor import TrocarSenhaAlunoProfessor
 
 
 class ProfessorView:
@@ -16,6 +17,7 @@ class ProfessorView:
 
         # Instanciar model
         self.model = ProfessorModel(usuario.id)
+        self.model.atualizar_disciplinas_e_avaliacoes() 
 
         # Configuração do estilo
         style = ttk.Style()
@@ -36,6 +38,7 @@ class ProfessorView:
         logout_frame = ttk.Frame(main_frame, style="TFrame")
         logout_frame.pack(anchor="ne", fill="x", pady=(0, 10))
         ttk.Button(logout_frame, text="Logout", command=self.logout).pack(side="right")
+        ttk.Button(logout_frame,text="Trocar Senha",command=self.abrir_troca_senha,style="TButton").pack(side="right", padx=5)
 
         # Notebook (abas)
         self.notebook = ttk.Notebook(self.root)
@@ -135,6 +138,11 @@ class ProfessorView:
             self.log_error(f"Erro ao confirmar presença: {e}")
             messagebox.showerror("Erro", "Ocorreu um erro ao confirmar a presença. Consulte os logs.")
 
+    def abrir_troca_senha(self):
+        """Abre a tela de troca de senha."""
+        self.root.destroy()
+        TrocarSenhaAlunoProfessor(usuario=self.usuario)
+
     def marcar_falta_individual(self):
         """Marca a falta de um aluno selecionado."""
         try:
@@ -215,6 +223,53 @@ class ProfessorView:
             self.log_error(f"Erro ao salvar nota: {e}")
             messagebox.showerror("Erro", "Ocorreu um erro ao salvar a nota. Consulte os logs.")
 
+    
+    def criar_avaliacao(self):
+        """Cria uma nova avaliação."""
+        try:
+            descricao = self.entry_descricao_avaliacao.get()
+            data = self.calendario.get_date()
+            tipo = self.combo_tipo_avaliacao_criar.get()
+
+            if not descricao or not data or not tipo:
+                raise ValueError("Todos os campos são obrigatórios.")
+
+            # Verifica se a disciplina foi selecionada
+            if not self.model.disciplina_selecionada:
+                raise ValueError("Nenhuma disciplina selecionada.")
+
+            # Usa o ID da disciplina diretamente
+            disciplina_id = self.model.disciplina_selecionada
+
+            # Cria a avaliação
+            self.model.criar_avaliacao(disciplina_id, descricao, data, tipo)
+            messagebox.showinfo("Sucesso", "Avaliação criada com sucesso!")
+            self.carregar_avaliacoes_criadas()
+        except ValueError as ve:
+            messagebox.showwarning("Erro", str(ve))
+        except Exception as e:
+            self.log_error(f"Erro ao criar avaliação: {e}")
+            messagebox.showerror("Erro", "Ocorreu um erro ao criar a avaliação. Consulte os logs.")
+
+    def definir_disciplina_selecionada(self, disciplina_id):
+        """Define qual disciplina está sendo usada."""
+        if any(d[0] == disciplina_id for d in self.disciplinas):  # Verifica se o ID é válido
+            self.disciplina_selecionada = disciplina_id  # Define como int
+        else:
+            raise ValueError("Disciplina inválida.")
+
+    def disciplina_selecionada(self, event):
+        """Atualiza a disciplina selecionada no Combobox."""
+        try:
+            disciplina_nome = self.combo_disciplinas_view.get()
+            if disciplina_nome in self.model.disciplinas_dict:
+                self.model.definir_disciplina_selecionada(self.model.disciplinas_dict[disciplina_nome])
+            else:
+                raise ValueError("Disciplina não encontrada.")
+        except Exception as e:
+            self.log_error(f"Erro ao selecionar disciplina: {e}")
+            messagebox.showerror("Erro", "Ocorreu um erro ao selecionar a disciplina. Consulte os logs.")
+
     def carregar_avaliacoes(self):
         """Carrega a interface para criar e mostrar avaliações."""
         try:
@@ -253,7 +308,7 @@ class ProfessorView:
             # Botão Criar Avaliação
             ttk.Button(self.tab_avaliacoes, text="Criar Avaliação", command=self.criar_avaliacao).pack(pady=10)
 
-            # Tabela de avaliações criadas
+                # Tabela de avaliações criadas
             ttk.Label(self.tab_avaliacoes, text="Avaliações Criadas", font=("Arial", 14), style="TLabel").pack(pady=10)
             self.lista_avaliacoes = ttk.Treeview(
                 self.tab_avaliacoes,
@@ -261,18 +316,29 @@ class ProfessorView:
                 show="headings",
                 height=10
             )
+        
+        # Configuração das colunas com larguras específicas
+            self.lista_avaliacoes.column("Disciplina", width=150, anchor="w")
+            self.lista_avaliacoes.column("Data", width=100, anchor="center")
+            self.lista_avaliacoes.column("Descrição", width=250, anchor="w")
+            self.lista_avaliacoes.column("Tipo", width=80, anchor="center")
+            self.lista_avaliacoes.column("Aprovados", width=80, anchor="center")
+            self.lista_avaliacoes.column("Faltas", width=80, anchor="center") 
+            
+            # Configuração dos cabeçalhos
             self.lista_avaliacoes.heading("Disciplina", text="Disciplina")
             self.lista_avaliacoes.heading("Data", text="Data")
             self.lista_avaliacoes.heading("Descrição", text="Descrição")
             self.lista_avaliacoes.heading("Tipo", text="Tipo")
             self.lista_avaliacoes.heading("Aprovados", text="Aprovados")
             self.lista_avaliacoes.heading("Faltas", text="Faltas")
+            
+            # Configuração da barra de rolagem vertical
+            scrollbar_x = ttk.Scrollbar(self.tab_avaliacoes, orient="horizontal", command=self.lista_avaliacoes.xview)
+            self.lista_avaliacoes.configure(xscrollcommand=scrollbar_x.set)
+            
             self.lista_avaliacoes.pack(fill="both", expand=True)
-
-            # Barra de rolagem
-            scrollbar_avaliacoes = ttk.Scrollbar(self.tab_avaliacoes, orient="vertical", command=self.lista_avaliacoes.yview)
-            self.lista_avaliacoes.configure(yscrollcommand=scrollbar_avaliacoes.set)
-            scrollbar_avaliacoes.pack(side="right", fill="y")
+            scrollbar_x.pack(fill="x")  # Barra de rolagem horizontal
 
             self.carregar_avaliacoes_criadas()
 

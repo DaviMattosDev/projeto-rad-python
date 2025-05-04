@@ -1,4 +1,3 @@
-# views/cadastrar_aluno_disciplina_view.py
 import tkinter as tk
 from tkinter import ttk, messagebox
 from models.aluno_disciplina import AlunoDisciplinaModel  

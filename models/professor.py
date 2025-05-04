@@ -8,6 +8,7 @@ class ProfessorModel:
         self.alunos = []
         self.avaliacoes = []
         self.disciplinas = []
+        self.disciplina_selecionada = None 
 
     def log_error(self, error_message):
         with open("debug.txt", "a") as log:
@@ -83,6 +84,8 @@ class ProfessorModel:
 
     def buscar_avaliacao(self, tipo_avaliacao):
         """Busca avaliação ativa pelo tipo."""
+        if not self.disciplina_selecionada:
+            raise ValueError("Nenhuma disciplina selecionada.")
         try:
             conn = sqlite3.connect("extensao.db")
             cursor = conn.cursor()
@@ -140,7 +143,7 @@ class ProfessorModel:
             self.log_error(f"buscar_avaliacoes_futuras: {e}")
             return []
 
-    def criar_avaliacao(self, descricao, data_avaliacao, tipo_avaliacao):
+    def criar_avaliacao(self, disciplina_id, descricao, data_avaliacao, tipo_avaliacao):
         """Cria uma nova avaliação no banco de dados."""
         try:
             conn = sqlite3.connect("extensao.db")
@@ -148,12 +151,11 @@ class ProfessorModel:
             cursor.execute('''
                 INSERT INTO avaliacoes (disciplina_id, data_avaliacao, descricao, tipo_avaliacao)
                 VALUES (?, ?, ?, ?)
-            ''', (self.disciplina_selecionada, data_avaliacao, descricao, tipo_avaliacao))
+            ''', (disciplina_id, data_avaliacao, descricao, tipo_avaliacao))
             conn.commit()
             conn.close()
         except Exception as e:
             self.log_error(f"criar_avaliacao: {e}")
-
     def contar_alunos_aprovados(self, avaliacao_id):
         """Conta os alunos aprovados em uma avaliação."""
         try:

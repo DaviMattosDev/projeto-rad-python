@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from models.aluno import Aluno  
 from datetime import datetime
+from views.trocar_senha_aluno_professor import TrocarSenhaAlunoProfessor  # Importa a tela de troca de senha
 
 
 class AlunoView:
@@ -26,10 +27,18 @@ class AlunoView:
         main_frame = ttk.Frame(self.root, style="TFrame")
         main_frame.pack(fill="both", expand=True, padx=20, pady=20)
 
+        # Botões de Logout e Trocar Senha
         logout_frame = ttk.Frame(main_frame, style="TFrame")
         logout_frame.pack(anchor="ne", fill="x", pady=(0, 10))
-        ttk.Button(logout_frame, text="Logout", command=self.logout).pack(side="right")
+        ttk.Button(logout_frame, text="Logout", command=self.logout).pack(side="right", padx=5)
+        ttk.Button(
+            logout_frame,
+            text="Trocar Senha",
+            command=self.abrir_troca_senha,
+            style="TButton"
+        ).pack(side="right", padx=5)
 
+        # Disciplinas Cursadas
         disciplinas_label_frame = ttk.LabelFrame(main_frame, text="Disciplinas Cursadas", style="TFrame")
         disciplinas_label_frame.pack(fill="x", pady=(0, 15))
 
@@ -57,6 +66,7 @@ class AlunoView:
         self.tree_disciplinas.configure(yscrollcommand=scrollbar_disciplinas.set)
         scrollbar_disciplinas.pack(side="right", fill="y")
 
+        # Próximas Avaliações
         avaliacoes_label_frame = ttk.LabelFrame(main_frame, text="Próximas Avaliações", style="TFrame")
         avaliacoes_label_frame.pack(fill="x", pady=(0, 15))
 
@@ -81,9 +91,10 @@ class AlunoView:
             orient="vertical",
             command=self.tree_avaliacoes.yview
         )
-        self.tree_avaliacoes.configure(yscroll=scrollbar_avaliacoes.set)
+        self.tree_avaliacoes.configure(yscrollcommand=scrollbar_avaliacoes.set)
         scrollbar_avaliacoes.pack(side="right", fill="y")
 
+        # Notas por Prova
         notas_label_frame = ttk.LabelFrame(main_frame, text="Notas por Prova", style="TFrame")
         notas_label_frame.pack(fill="x", pady=(0, 15))
 
@@ -104,7 +115,7 @@ class AlunoView:
             orient="vertical",
             command=self.tree_notas.yview
         )
-        self.tree_notas.configure(yscroll=scrollbar_notas.set)
+        self.tree_notas.configure(yscrollcommand=scrollbar_notas.set)
         scrollbar_notas.pack(side="right", fill="y")
 
         # Carrega os dados do aluno
@@ -165,6 +176,11 @@ class AlunoView:
         from controllers.auth_controller import AuthController
         auth = AuthController()
         auth.start()
+
+    def abrir_troca_senha(self):
+        """Abre a tela de troca de senha."""
+        self.root.destroy()
+        TrocarSenhaAlunoProfessor(usuario=self.usuario)
 
     def start(self):
         self.root.mainloop()

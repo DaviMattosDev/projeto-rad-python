@@ -1,4 +1,3 @@
-# views/cadastrar_disciplina_view.py
 import tkinter as tk
 from tkinter import ttk, messagebox
 from tkcalendar import DateEntry

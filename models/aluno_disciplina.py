@@ -53,23 +53,17 @@ class AlunoDisciplinaModel:
             return False
 
     def cadastrar_aluno_na_disciplina(self, aluno_id, disciplina_id):
-        """Realiza o cadastro do aluno na disciplina."""
+        """Cadastra o aluno na disciplina."""
         try:
+            # Insere o aluno na tabela frequencias com a data atual
+            data_atual = datetime.now().strftime("%Y-%m-%d")
             self.cursor.execute('''
-                INSERT INTO frequencias (aluno_id, disciplina_id, presente)
-                VALUES (?, ?, ?)
-            ''', (aluno_id, disciplina_id, 0))
-
-            # Inserir nota inicial como NULL
-            self.cursor.execute('''
-                INSERT INTO notas (aluno_id, disciplina_id, valor_nota)
-                VALUES (?, ?, ?)
-            ''', (aluno_id, disciplina_id, None))
-
+                INSERT INTO frequencias (aluno_id, disciplina_id, data_aula, presente)
+                VALUES (?, ?, ?, ?)
+            ''', (aluno_id, disciplina_id, data_atual, False))  # presente=False por padrão
             self.conn.commit()
             return True
         except Exception as e:
-            self.conn.rollback()
             self.log_debug(f"Erro ao cadastrar aluno na disciplina: {e}")
             return False
 
