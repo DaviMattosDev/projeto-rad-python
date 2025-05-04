@@ -3,6 +3,7 @@ from tkinter import ttk
 from views.cadastrar_usuario_view import CadastrarUsuarioView
 from views.cadastrar_disciplina_view import CadastrarDisciplinaView
 from views.cadastrar_aluno_disciplina_view import CadastrarAlunoDisciplinaView
+from views.trocar_senha_view import TrocarSenhaView
 
 
 class AdminView:
@@ -12,7 +13,7 @@ class AdminView:
         self.root.resizable(False, False)
         self.root.configure(bg="#f5f5f5")
 
-        # Centralizar a janela principal
+        # Centralizar a tela principal
         self.centralizar_janela(self.root, 800, 600)
 
         # Configuração do estilo
@@ -32,29 +33,33 @@ class AdminView:
         button_frame = ttk.Frame(self.root, style="TFrame")
         button_frame.pack(pady=20)
 
-        # Botões com design melhorado
+        # Botões principais
         buttons = [
             ("Cadastrar Aluno", self.cadastrar_aluno),
             ("Cadastrar Professor", self.cadastrar_professor),
             ("Cadastrar Disciplina", self.cadastrar_disciplina),
-            ("Cadastrar Aluno em Disciplina", self.cadastrar_aluno_disciplina)
+            ("Cadastrar Aluno em Disciplina", self.cadastrar_aluno_disciplina),
+            ("Trocar Senha", self.trocar_senha),
+            ("Deslogar", self.logout)
         ]
 
         for text, command in buttons:
-            ttk.Button(button_frame, text=text, command=command, style="TButton").pack(fill="x", pady=5, padx=20)
+            ttk.Button(button_frame, text=text, command=command, style="TButton").pack(fill=tk.X, pady=5, padx=20)
 
     def centralizar_janela(self, janela, largura, altura):
         """Centraliza uma janela na tela."""
-        # Obter as dimensões da tela
         largura_tela = janela.winfo_screenwidth()
         altura_tela = janela.winfo_screenheight()
-
-        # Calcular as coordenadas x e y para centralizar a janela
         pos_x = (largura_tela - largura) // 2
         pos_y = (altura_tela - altura) // 2
-
-        # Definir a geometria da janela
         janela.geometry(f"{largura}x{altura}+{pos_x}+{pos_y}")
+
+    def logout(self):
+        """Fecha a tela do admin e volta para a tela de login."""
+        self.root.destroy()
+        from controllers.auth_controller import AuthController
+        auth = AuthController()
+        auth.start()
 
     def cadastrar_aluno(self):
         from views.cadastrar_usuario_view import CadastrarUsuarioView
@@ -80,5 +85,12 @@ class AdminView:
         self.centralizar_janela(view.root, 500, 400)
         view.start()
 
+    def trocar_senha(self):
+        from views.trocar_senha_view import TrocarSenhaView
+        view = TrocarSenhaView()
+        self.centralizar_janela(view.root, 400, 300)
+        view.start()    
+
     def start(self):
+        """Inicia a interface gráfica."""
         self.root.mainloop()

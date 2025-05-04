@@ -122,19 +122,24 @@ class Aluno:
     @staticmethod
     def buscar_avaliacoes(aluno_id):
         """
-        Busca as próximas avaliações do aluno.
-        Retorna uma lista de tuplas contendo (nome_da_disciplina, data_avaliacao, descricao, tipo_avaliacao).
+        Busca as próximas avaliações nas disciplinas cursadas pelo aluno.
+        Retorna lista de tuplas com (nome_disciplina, data_avaliacao, descricao, tipo_avaliacao)
         """
         try:
             conn = sqlite3.connect("extensao.db")
             cursor = conn.cursor()
+
             cursor.execute('''
-            SELECT d.nome, a.data_avaliacao, a.descricao, a.tipo_avaliacao
+            SELECT DISTINCT d.nome, a.data_avaliacao, a.descricao, a.tipo_avaliacao
             FROM avaliacoes a
             JOIN disciplinas d ON a.disciplina_id = d.id
-            JOIN frequencias f ON d.id = f.disciplina_id
-            WHERE f.aluno_id=?
+            WHERE d.id IN (
+                SELECT disciplina_id 
+                FROM frequencias 
+                WHERE aluno_id = ?
+            )
             ''', (aluno_id,))
+
             avaliacoes = cursor.fetchall()
             conn.close()
             return avaliacoes

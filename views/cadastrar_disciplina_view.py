@@ -1,6 +1,8 @@
+# views/cadastrar_disciplina_view.py
 import tkinter as tk
 from tkinter import ttk, messagebox
-import sqlite3
+from tkcalendar import DateEntry
+from models.disciplina import DisciplinaModel  
 from datetime import datetime
 
 
@@ -11,6 +13,9 @@ class CadastrarDisciplinaView:
         self.root.geometry("500x400")
         self.root.resizable(False, False)
         self.root.configure(bg="#f5f5f5")
+
+        # Instância do model
+        self.model = DisciplinaModel()
 
         # Configuração do estilo
         style = ttk.Style()
@@ -43,84 +48,35 @@ class CadastrarDisciplinaView:
         self.entry_matricula_professor = ttk.Entry(main_frame, style="TEntry", width=30)
         self.entry_matricula_professor.pack(pady=5)
 
-        # Botão de Salvar
-        ttk.Button(main_frame, text="Salvar", command=self.salvar, style="TButton").pack(pady=20)
-
-    def log_debug(self, message):
-        """
-        Logs debug information to a file named 'debug.txt'.
-        :param message: The message to log.
-        """
-        with open("debug.txt", "a") as debug_file:
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            debug_file.write(f"[{timestamp}] {message}\n")
-
-    def buscar_id_por_matricula(self, matricula):
-        """
-        Busca o ID do professor com base na matrícula.
-        
-        :param matricula: Número de matrícula do professor.
-        :return: ID do professor ou None se não encontrado.
-        """
-        try:
-            conn = sqlite3.connect("extensao.db")
-            cursor = conn.cursor()
-            cursor.execute('''
-                SELECT id FROM usuarios WHERE matricula=?
-            ''', (matricula,))
-            resultado = cursor.fetchone()
-            conn.close()
-            if resultado:
-                return resultado[0]  # Retorna o ID do professor
-            else:
-                return None  # Retorna None se a matrícula não for encontrada
-        except Exception as e:
-            self.log_debug(f"Erro ao buscar ID por matrícula: {e}")
-            return None
+        # Botão Salvar
+        ttk.Button(main_frame, text="Salvar", command=self.salvar).pack(pady=20)
 
     def salvar(self):
+        """Salva a nova disciplina após validar os campos."""
         nome = self.entry_nome.get().strip()
         descricao = self.entry_descricao.get().strip()
-        matricula_professor = self.entry_matricula_professor.get().strip()
+        matricula = self.entry_matricula_professor.get().strip()
 
-        # Log inputs for debugging
-        self.log_debug(f"Inputs recebidos - Nome: '{nome}', Descrição: '{descricao}', Matrícula do Professor: '{matricula_professor}'")
+        # Log dos dados recebidos
+        self.model.log_debug(f"Inputs - Nome: '{nome}', Descrição: '{descricao}', Matrícula do Professor: '{matricula}'")
 
-        if not nome or not matricula_professor:
-            error_message = "Erro: Nome e matrícula do professor são obrigatórios."
-            self.log_debug(error_message)
-            messagebox.showerror("Erro", error_message)
+        if not nome or not matricula:
+            messagebox.showwarning("Campos Obrigatórios", "Nome e matrícula são obrigatórios.")
             return
 
-        try:
-            # Buscar o ID do professor usando a matrícula
-            professor_id = self.buscar_id_por_matricula(matricula_professor)
-            if not professor_id:
-                error_message = "Erro: Professor não encontrado com a matrícula fornecida."
-                self.log_debug(error_message)
-                messagebox.showerror("Erro", error_message)
-                return
+        # Buscar professor pelo model
+        professor_id = self.model.buscar_professor_por_matricula(matricula)
+        if not professor_id:
+            messagebox.showerror("Erro", "Professor não encontrado.")
+            return
 
-            # Conectar ao banco de dados e inserir a nova disciplina
-            conn = sqlite3.connect("extensao.db")
-            cursor = conn.cursor()
-            cursor.execute('''
-                INSERT INTO disciplinas (nome, descricao, professor_id)
-                VALUES (?, ?, ?)
-            ''', (nome, descricao or "", professor_id))
-            conn.commit()
-            success_message = "Disciplina cadastrada com sucesso!"
-            self.log_debug(success_message)
-            messagebox.showinfo("Sucesso", success_message)
-            self.root.destroy()
-        except Exception as e:
-            error_message = f"Erro ao salvar disciplina: {e}"
-            self.log_debug(error_message)
-            messagebox.showerror("Erro", error_message)
-        finally:
-            if 'conn' in locals():
-                conn.close()
-            self.log_debug("Conexão com o banco de dados fechada.")
+        # Cadastrar disciplina
+        sucesso = self.model.cadastrar_disciplina(nome, descricao, professor_id)
+        if sucesso:
+            messagebox.showinfo("Sucesso", "Disciplina cadastrada com sucesso!")
+            self.root.destroy()  # Fecha a janela após sucesso
+        else:
+            messagebox.showerror("Erro", "Falha ao cadastrar a disciplina.")
 
     def start(self):
         self.root.mainloop()
