@@ -1,4 +1,3 @@
-# controllers/auth_controller.py
 from views.login_view import LoginView
 from models.usuario import Usuario
 
