@@ -177,10 +177,165 @@ python testes/criar_usuarios_exemplo.py (caso queira criar usuários de teste au
 
 Na primeira execução, o banco de dados `extensao.db` será criado automaticamente.
 
-### 🔒 Login padrão
+### 🔒 Login Administrador padrão
 
 - Matrícula: `123`
 - Senha: `admin123`
+
+---
+
+### 🔐 Login Aluno ou Professor após cadastro
+
+Após cadastrar um novo **Aluno** ou **Professor**, o sistema gera automaticamente uma **matrícula única** e uma **senha padrão inicial** para o primeiro acesso.
+
+
+### 📌 Como funciona:
+
+- A **matrícula** é gerada automaticamente com a função `gerar_matricula()`, normalmente combinando o ano atual com um número aleatório.  
+  **Exemplo:** `20251234`
+
+- A **senha padrão** é gerada com base nos **últimos 3 dígitos do CPF** e na **data de nascimento** do usuário.  
+  Isso é feito com a função `gerar_senha_padrao(data_nascimento, cpf)`.
+
+
+### 🧪 Exemplo prático
+
+Suponha que um aluno tenha os seguintes dados:
+
+- CPF: `123.456.789-09`
+- Data de nascimento: `15/08/2004`
+
+A **senha padrão** gerada seria:
+
+- Data de nascimento sem barras: `15082004`
+- Últimos 3 dígitos do CPF: `909`
+
+**Senha padrão inicial:** `15082004909`
+
+
+### 🆔 Login gerado após cadastro:
+
+- Matrícula: *(gerada automaticamente, ex:)* `20253782`
+- Senha: `15082004909` *(baseada no CPF e data de nascimento)*
+
+> ⚠️ **Importante:** essa senha é **temporária** e deve ser alterada no primeiro acesso para garantir a segurança da conta.
+
+---
+
+---
+
+## 📋 Tela do Aluno
+
+Após o login, o aluno acessa uma interface dividida em três áreas principais:
+
+### 1. 📘 Disciplinas Cursadas  
+- Exibe disciplinas com:
+  - Nome da disciplina  
+  - Professor responsável  
+  - Frequência (%): destaca em **vermelho** se < 50%  
+  - Nota final: valor numérico ou "N/A"
+
+### 2. 📅 Próximas Avaliações  
+- Lista avaliações futuras com:
+  - Nome da disciplina  
+  - Data  
+  - Descrição  
+  - Tipo (AV1, AV2, AVS)
+
+### 3. 📊 Notas por Prova  
+- Mostra notas lançadas pelo professor organizadas por tipo de avaliação  
+- Se não houver nota, exibe como "N/A"
+
+### 🔧 Ações Disponíveis
+- `Trocar Senha`: abre tela de alteração de senha  
+- `Logout`: encerra sessão e retorna à tela de login
+
+---
+
+## 👨‍🏫 Tela do Professor
+
+O professor tem acesso a uma interface com **três abas**:
+
+### 1. 🧭 Marcar Presença  
+- Exibe lista de alunos com status:
+  - Presente (**verde**)  
+  - Ausente (**vermelho**)  
+- Botões:
+  - `Confirmar Presença`  
+  - `Marcar Falta`
+
+### 2. 📝 Lançar Notas  
+Campos:
+- Selecionar aluno  
+- Tipo de avaliação (AV1, AV2, AVS)  
+- Digitar nota (0.0–10.0) ou marcar “Falta”
+
+Botão:
+- `Salvar Nota` → registra os dados no sistema
+
+> ⚠️ Validação automática de valores entre 0.0 e 10.0.
+
+### 3. 🧾 Avaliações  
+Duas partes:
+
+#### 🔧 Criar Nova Avaliação  
+Campos:
+- Selecionar disciplina  
+- Descrição  
+- Data (via calendário)  
+- Tipo (AV1, AV2, AVS)  
+Botão:
+- `Criar Avaliação`
+
+#### 📋 Avaliações Criadas  
+Exibe:
+- Disciplina  
+- Data  
+- Descrição  
+- Tipo  
+- Nº de alunos aprovados  
+- Nº de faltas
+
+---
+
+## 👤 Tela do Administrador
+
+Interface centralizada para gerenciamento do sistema com botões que levam às funcionalidades abaixo:
+
+### 🔘 Funções Disponíveis:
+
+| Botão | Descrição |
+|-------|-----------|
+| **Cadastrar Aluno** | Abre tela para cadastrar um novo aluno |
+| **Cadastrar Professor** | Abre tela para cadastrar um novo professor |
+| **Cadastrar Disciplina** | Abre tela para criar nova disciplina |
+| **Cadastrar Aluno em Disciplina** | Vincula aluno a uma disciplina |
+| **Relatórios** | Gera relatórios acadêmicos gerais |
+| **Remover Aluno de Professor** | Desvincula aluno de um professor |
+| **Trocar Senha** | Abre tela de alteração de senha |
+| **Deslogar** | Encerra sessão e volta à tela de login |
+
+> ✅ Todas as telas são abertas em janelas separadas e centralizadas na tela principal.
+
+---
+
+## 🔐 Troca de Senha (comum para todos os perfis)
+
+Tela com os campos:
+- Senha Atual  
+- Nova Senha  
+- Confirmação da Nova Senha  
+
+Botão:
+- `Salvar` → redireciona para a tela principal após sucesso
+
+---
+
+## 🚪 Logout (comum para todos os perfis)
+
+Ação:
+- Fecha a janela atual  
+- Retorna à tela de login
 
 ---
 
