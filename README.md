@@ -368,7 +368,7 @@ Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalh
 
 - **Davi Mattos** — Desenvolvedor Principal
 
-> Se for grupo, adicione mais nomes aqui com links para os perfis do GitHub.
+> (grupo).
 
 ---
 
@@ -398,8 +398,8 @@ Como contribuir:
 ## 📞 Contato
 
 - GitHub: [DaviMattosDev](https://github.com/DaviMattosDev)
-- Instagram: [@davimattosdev](https://instagram.com/davimattosdev)
-- Email: [davimattos.contato@gmail.com](mailto:davimattos.contato@gmail.com)
+- Linkedin: [Davi Mattos](https://www.linkedin.com/in/davi-mattos-5a39b3288)
+- Email: [davimattosrjti@gmail.com](mailto:davimattos.contato@gmail.com)
 
 > Projeto desenvolvido como Trabalho Prático de RAD – Entrega prevista para **06/06/2025**
 
