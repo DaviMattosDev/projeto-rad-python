@@ -27,13 +27,6 @@ def gerar_senha_padrao(data_nascimento, cpf):
 # Dados dos usuários exemplo
 usuarios_data = [
     {
-        "nome_completo": "Administrador do Sistema",
-        "email": "admin@example.com",
-        "cpf": "111.111.111-11",
-        "data_nascimento": "01/01/1980",
-        "tipo_usuario": "admin"
-    },
-    {
         "nome_completo": "João da Silva",
         "email": "joao.silva@example.com",
         "cpf": "222.222.222-22",
