@@ -141,6 +141,7 @@ projeto-rad-python/
 │
 │
 ├── extensao.db
+├── debug_db.txt
 ├── debug.txt
 └── requirements.txt
 ```
