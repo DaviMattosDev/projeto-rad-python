@@ -1,4 +1,4 @@
-# 🎓 Sistema de Gerenciamento Escolar
+# 🎓 Sistema de Gerenciamento de Extensão Universitária
 
 ![GitHub repo size](https://img.shields.io/github/repo-size/DaviMattosDev/projeto-rad-python?style=for-the-badge)
 ![GitHub language count](https://img.shields.io/github/languages/count/DaviMattosDev/projeto-rad-python?style=for-the-badge)
@@ -6,7 +6,7 @@
 
 > Projeto acadêmico desenvolvido como parte do Trabalho Prático da disciplina de RAD (Rapid Application Development).
 
-Este sistema permite ao administrador, professores e alunos realizar diversas ações no gerenciamento escolar, como:
+Este sistema permite ao administrador, professores e alunos realizar diversas ações no gerenciamento univesitário, como:
 
 - 🔐 Login com validação por matrícula e senha  
 - 👥 Cadastro de Aluno e Professor com criptografia hash  
