@@ -399,7 +399,7 @@ Como contribuir:
 
 - GitHub: [DaviMattosDev](https://github.com/DaviMattosDev)
 - Linkedin: [Davi Mattos](https://www.linkedin.com/in/davi-mattos-5a39b3288)
-- Email: [davimattosrjti@gmail.com](mailto:davimattos.contato@gmail.com)
+- Email: [Davirjti@gmail.com](mailto:davirjti@gmail.com)
 
 > Projeto desenvolvido como Trabalho Prático de RAD – Entrega prevista para **06/06/2025**
 
