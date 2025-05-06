@@ -9,7 +9,7 @@ class AuthController:
     def start(self):
         """Inicia a tela de login e centraliza ela."""
         self.view = LoginView(self)
-        self.centralizar_janela(self.view.root, 500, 400)  # Tamanho da tela de login
+        self.centralizar_janela(self.view.root, 500, 400) 
         self.view.start()
 
     def centralizar_janela(self, janela, largura, altura):
