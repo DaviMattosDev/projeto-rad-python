@@ -6,12 +6,20 @@ from models.usuario import Usuario
 class AuthController:
     def __init__(self):
         self.view = None
-        self.root = None
 
     def start(self):
-        """Inicia a tela de login."""
+        """Inicia a tela de login e centraliza ela."""
         self.view = LoginView(self)
+        self.centralizar_janela(self.view.root, 500, 400)  # Tamanho da tela de login
         self.view.start()
+
+    def centralizar_janela(self, janela, largura, altura):
+        """Centraliza uma janela na tela."""
+        largura_tela = janela.winfo_screenwidth()
+        altura_tela = janela.winfo_screenheight()
+        pos_x = (largura_tela - largura) // 2
+        pos_y = (altura_tela - altura) // 2
+        janela.geometry(f"{largura}x{altura}+{pos_x}+{pos_y}")
 
     def login(self):
         matricula, senha = self.view.get_dados_login()
