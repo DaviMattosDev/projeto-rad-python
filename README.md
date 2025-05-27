@@ -150,6 +150,11 @@ projeto-rad-python/
 
 ## 📋 Instalação
 
+```bash
+git clone https://github.com/DaviMattosDev/projeto-rad-python.git
+cd projeto-rad-python
+```
+
 ### 📦 Instale as dependências com:
 
 ```bash
@@ -167,8 +172,6 @@ pip install -r requirements.txt
 ## 🚀 Como Executar o Projeto
 
 ```bash
-git clone https://github.com/DaviMattosDev/projeto-rad-python.git
-cd projeto-rad-python
 python database/db.py
 python main.py
 
