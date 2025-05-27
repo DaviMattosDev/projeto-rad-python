@@ -41,6 +41,7 @@ Este sistema permite ao administrador, professores e alunos realizar diversas a�
 | **Remover Aluno de Professor** | Desvincula aluno de sua disciplina atual |
 | **Relatórios Visuais** | Exibe gráficos de frequência e desempenho |
 | **Exportação de Dados** | Gera relatórios em CSV e Excel |
+| **Desmatricular Aluno ou Professor** | Desmatricula um Aluno ou Professor |
 
 ---
 
