@@ -125,6 +125,7 @@ projeto-rad-python/
 │   └── professor.py
 │   └── aluno.py
 │   └── aluno_disciplina.py
+│   └── desmatricular_model.py
 │
 │
 ├── views/
@@ -138,7 +139,7 @@ projeto-rad-python/
 │   ├── cadastrar_aluno_disciplina_view.py
 │   ├── trocar_senha_view.py
 │   └── remover_matricula_view.py
-│
+│   └── desmatricular_view.py
 │
 ├── extensao.db
 ├── debug_db.txt
@@ -313,6 +314,7 @@ Interface centralizada para gerenciamento do sistema com botões que levam às f
 | **Cadastrar Professor** | Abre tela para cadastrar um novo professor |
 | **Cadastrar Disciplina** | Abre tela para criar nova disciplina |
 | **Cadastrar Aluno em Disciplina** | Vincula aluno a uma disciplina |
+| **Desmatricular Aluno ou Professor** | Abre uma tela para desmatricular um aluno ou professor da universidade |
 | **Relatórios** | Gera relatórios acadêmicos gerais |
 | **Remover Aluno de Professor** | Desvincula aluno de um professor |
 | **Trocar Senha** | Abre tela de alteração de senha |
