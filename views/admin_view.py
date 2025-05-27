@@ -6,6 +6,8 @@ from views.cadastrar_aluno_disciplina_view import CadastrarAlunoDisciplinaView
 from views.trocar_senha_view import TrocarSenhaView
 from views.remover_matricula_view import RemoverAlunoProfessorView
 from views.relatorios_view import RelatoriosView
+from views.desmatricular_view import DesmatricularUsuarioView
+
 import traceback
 
 
@@ -37,6 +39,7 @@ class AdminView:
             ("Cadastrar Professor", self.cadastrar_professor),
             ("Cadastrar Disciplina", self.cadastrar_disciplina),
             ("Cadastrar Aluno em Disciplina", self.cadastrar_aluno_disciplina),
+            ("Desmatricular Aluno/Professor", self.desmatricular_aluno_professor),
             ("Relatórios", self.relatorios),
             ("Remover Aluno de Professor", self.remover_aluno_professor),
             ("Trocar Senha", self.trocar_senha),
@@ -94,9 +97,16 @@ class AdminView:
     def cadastrar_aluno_disciplina(self):
         try:
             view = CadastrarAlunoDisciplinaView()
-            self.centralizar_janela(view.root, 500, 400)
+            self.centralizar_janela(view.root, 500, 600)
         except Exception:
             self.log_erro("cadastrar_aluno_disciplina")
+
+    def desmatricular_aluno_professor(self):
+        try:
+            view = DesmatricularUsuarioView(self.root)
+            self.centralizar_janela(view.root, 500, 400)
+        except Exception as e:
+            self.log_erro("desmatricular_aluno_professor")        
 
     def relatorios(self):
         try:
